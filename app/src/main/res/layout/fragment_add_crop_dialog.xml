@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="8dp"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".AddCropDialog">
+
+    <EditText
+        android:id="@+id/crop_name_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:editable="true"
+        android:ems="10"
+        android:hint="Crop Name"
+        android:inputType="text" />
+
+    <Spinner
+        android:id="@+id/crop_type_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:dropDownWidth="wrap_content"
+        android:entries="@array/crop_type_spinner_list"
+        android:prompt="@string/TypeDialogHint" />
+
+    <EditText
+        android:id="@+id/crop_growth_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:editable="true"
+        android:ems="10"
+        android:hint="Expected growth time (number of days)"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/water_freq_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:editable="true"
+        android:ems="10"
+        android:hint="Watering frequency (times per day)"
+        android:inputType="number" />
+</LinearLayout>

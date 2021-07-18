@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.GardenTracker.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_cropFragment"
+            app:destination="@id/cropListFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_homeFragment_to_harvestFragment"
+            app:destination="@id/harvestFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_helpFragment"
+            app:destination="@id/helpFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_cropNotesFragment"
+            app:destination="@id/cropNotesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cropListFragment"
+        android:name="com.example.GardenTracker.fragments.CropListFragment"
+        android:label="fragment_crop_list"
+        tools:layout="@layout/fragment_crop_list" >
+        <argument android:name="CurrentCrops" />
+        <argument android:name="TypeDrawables" />
+        <action
+            android:id="@+id/action_cropFragment_to_addCropDialog"
+            app:destination="@id/addCropDialog" />
+        <action
+            android:id="@+id/action_cropListFragment_to_cropFragment"
+            app:destination="@id/cropFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/harvestFragment"
+        android:name="com.example.GardenTracker.fragments.HarvestFragment"
+        android:label="fragment_harvest"
+        tools:layout="@layout/fragment_harvest" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.GardenTracker.fragments.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="com.example.GardenTracker.fragments.HelpFragment"
+        android:label="fragment_help"
+        tools:layout="@layout/fragment_help" />
+    <fragment
+        android:id="@+id/addCropDialog"
+        android:name="com.example.GardenTracker.AddCropDialog"
+        android:label="fragment_add_crop_dialog"
+        tools:layout="@layout/fragment_add_crop_dialog" >
+        <action
+            android:id="@+id/action_addCropDialog_to_cropFragment"
+            app:destination="@id/cropListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cropFragment"
+        android:name="com.example.GardenTracker.fragments.CropFragment"
+        android:label="CropFragment" >
+        <argument android:name="statusCrop" />
+        <argument android:name="drawables" />
+        <action
+            android:id="@+id/action_cropFragment_to_memoryDisplayFragment"
+            app:destination="@id/memoryDisplayFragment" />
+        <action
+            android:id="@+id/action_cropFragment_to_cropNotesFragment"
+            app:destination="@id/cropNotesFragment" />
+        <action
+            android:id="@+id/action_cropFragment_to_cropListFragment"
+            app:destination="@id/cropListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/memoryDisplayFragment"
+        android:name="com.example.GardenTracker.fragments.MemoryDisplayFragment"
+        android:label="fragment_memory_display"
+        tools:layout="@layout/fragment_memory_display" >
+        <argument
+            android:name="Memory"
+            app:argType="android.graphics.Bitmap" />
+    </fragment>
+    <fragment
+        android:id="@+id/noteFragment"
+        android:name="com.example.GardenTracker.fragments.NoteFragment"
+        android:label="fragment_note"
+        tools:layout="@layout/fragment_note" >
+        <action
+            android:id="@+id/action_noteFragment_to_cropNotesFragment"
+            app:destination="@id/cropNotesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cropNotesFragment"
+        android:name="com.example.GardenTracker.fragments.NotesFragment"
+        android:label="fragment_note_list"
+        tools:layout="@layout/fragment_note_list"
+        >
+        <action
+            android:id="@+id/action_cropNotesFragment_to_noteFragment"
+            app:destination="@id/noteFragment" />
+    </fragment>
+</navigation>

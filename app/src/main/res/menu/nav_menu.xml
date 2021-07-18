@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/navigation_menu"  >
+
+    <item
+        android:id="@+id/your_garden_item"
+        android:enabled="true"
+        android:title="Your Garden" />
+    <item
+        android:id="@+id/harvests_item"
+        android:enabled="true"
+        android:title="Harvests" />
+    <item
+        android:id="@+id/notes_item"
+        android:title="Garden Notes" />
+    <item
+        android:id="@+id/settings_item"
+        android:enabled="true"
+        android:title="Settings" />
+    <item
+        android:id="@+id/help_item"
+        android:enabled="true"
+        android:title="Help" />
+
+</menu>

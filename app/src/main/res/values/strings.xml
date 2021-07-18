@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">IDontKnowYet</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="TitleString">Hannah\'s Herb Watcher</string>
+    <string name="HeaderDescription">A floral greenhouse with rain falling on the windows</string>
+    <string name="WelcomeMessage">Welcome back Hannah</string>
+    <string name="NewCropDialogTitle">What are you planting?</string>
+    <string name="PosButt">Add</string>
+    <string name="NegButt">Cancel</string>
+    <string name="DrawerOpen">Open</string>
+    <string name="DrawerClose">Close</string>
+    <string name="TypeDialogHint">Crop Type</string>
+    <string name="GrowthLabel">Growth</string>
+    <string name="WaterLabel">Next Water</string>
+    <string name="CropTitle">Your\ </string>
+    <string name="CropToNotes">Go to Notes</string>
+
+    <string-array name="crop_type_spinner_list">
+        <item>Flower</item>
+        <item>Herb</item>
+        <item>Vegetable</item>
+        <item>Fruit</item>
+    </string-array>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".fragments.GardenNotesFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:id="@+id/notes_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Your Garden Notes"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+
+    <Button
+        android:id="@+id/flower_notes_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Flower Notes" />
+
+    <Button
+        android:id="@+id/herb_notes_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Herb Notes" />
+
+    <Button
+        android:id="@+id/veggie_notes_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Veggie Notes" />
+
+    <Button
+        android:id="@+id/fruit_notes_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fruit Notes" />
+
+</LinearLayout>
