@@ -42,7 +42,7 @@ class MyCropAdapter(
         val item = mValues[position]
 
         holder.cropType.setImageDrawable(
-            when(item.cropType) {
+            when(item.type) {
                 "Flower" -> mDrawables[0]
                 "Herb" -> mDrawables[1]
                 "Fruit" -> mDrawables[2]
@@ -50,9 +50,8 @@ class MyCropAdapter(
                 else -> mDrawables[0]
             }
         )
-        holder.cropName.text = item.cropName
+        holder.cropName.text = item.name
         holder.timeToHarvest.progress = item.harvestProgress()
-        holder.timeToWater.progress = item.waterProgress()
 
         with(holder.mView) {
             tag = item
@@ -66,7 +65,6 @@ class MyCropAdapter(
         val cropType: ImageView = mView.crop_type
         val cropName: TextView = mView.crop_label
         val timeToHarvest: ProgressBar = mView.time_to_harvest
-        val timeToWater: ProgressBar = mView.time_to_water
 
         /*
         override fun toString(): String {

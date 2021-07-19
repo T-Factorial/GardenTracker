@@ -37,13 +37,19 @@
         android:hint="Expected growth time (number of days)"
         android:inputType="number" />
 
-    <EditText
-        android:id="@+id/water_freq_input"
+    <Spinner
+        android:id="@+id/water_hours_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:editable="true"
-        android:ems="10"
-        android:hint="Watering frequency (times per day)"
-        android:inputType="number" />
+        android:dropDownWidth="wrap_content"
+        android:entries="@array/water_hours_spinner_list"
+        android:prompt="@string/WaterDialogText" />
+
+    <TextView
+        android:id="@+id/waterHoursLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Watering Hours:" />
+
 </LinearLayout>

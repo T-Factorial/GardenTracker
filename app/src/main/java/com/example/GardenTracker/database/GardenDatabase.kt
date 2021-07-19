@@ -12,7 +12,7 @@ import com.example.GardenTracker.model.Crop
 
 @Database(
     entities = [Crop::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class GardenDatabase() : RoomDatabase() {

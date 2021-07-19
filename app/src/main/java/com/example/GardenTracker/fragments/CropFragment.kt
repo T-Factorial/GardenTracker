@@ -63,7 +63,6 @@ class CropFragment : Fragment() {
         val cropType : ImageView = view.findViewById(R.id.crop_type)
         val cropLabel : TextView = view.findViewById(R.id.crop_label)
         var harvestProgress : ProgressBar = view.findViewById(R.id.time_to_harvest)
-        var waterProgress : ProgressBar = view.findViewById(R.id.time_to_water)
 
 
         // Get view buttons
@@ -83,7 +82,6 @@ class CropFragment : Fragment() {
         }
         cropLabel.text = mStatusCrop.name // Might not work
         harvestProgress.progress = mStatusCrop.harvestProgress()
-        waterProgress.progress = mStatusCrop.waterProgress()
 
         // Set button listeners
         waterButton.setOnClickListener(View.OnClickListener {
@@ -138,7 +136,7 @@ class CropFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as AppCompatActivity)?.supportActionBar?.title = mStatusCrop.cropName + " Status"
+        (activity as AppCompatActivity)?.supportActionBar?.title = mStatusCrop.name + " Status"
     }
 
     override fun onAttach(context: Context) {

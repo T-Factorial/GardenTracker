@@ -34,7 +34,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 private const val ARG_COLUMN_COUNT = "column-count"
-private const val ARG_NEW_CROP = "new-crop"
+private const val NEW_CROP = "new-crop"
 private const val ARG_CROP_LIST = "crop-list"
 private const val ARG_DRAWABLES = "drawable-resources"
 private const val CROP_NAME = "crop-name"
@@ -44,7 +44,7 @@ private const val NOTE = "note"
 private const val NOTE_CONTENT = "note-content"
 private const val CROP_MEMORIES = "crop-memories"
 private const val GROWTH_TIME = "growth-time"
-private const val WATER_FREQ = "water-freq"
+private const val WATER_HOURS = "water-freq"
 private const val STATUS_CROP = "status_crop"
 private const val DISPLAY_MEMORY = "display-memory"
 private const val CAMERA_REQUEST = 0
@@ -149,7 +149,7 @@ class MainActivity :
 
     private fun registerCropDateTimeReceiver(crop: Crop) {
         val intentFilter = IntentFilter()
-        val receiver = DateTimeReceiver(crop, crop.harvestDay, crop.nextWaterHour)
+        val receiver = DateTimeReceiver(crop)
         intentFilter.addAction("android.intent.action.TIME_TICK")
         registerReceiver(receiver, intentFilter)
     }
@@ -342,14 +342,9 @@ class MainActivity :
      ****************************************************************************************/
     override fun onDialogAccept(newCrop: Bundle) {
 
-        // Unpack Bundle
-        val nName = newCrop.get(CROP_NAME) as String
-        val nType = newCrop.get(CROP_TYPE) as String
-        val nGrowth = newCrop.get(GROWTH_TIME) as Int
-        val nWater = newCrop.get(WATER_FREQ) as Int
 
-        // Initiate actual Crop with counter and stuff
-        val nCrop = Crop(nName, nType, nGrowth, nWater)
+        // Unpack bundle
+        val nCrop = newCrop.get(NEW_CROP) as Crop
         mSavedCrops.add(nCrop)
 
         // Register Crop's broadcast receiver
@@ -404,7 +399,7 @@ class MainActivity :
         mSavedCrops.remove(crop)
 
         // Remove crop notes from database
-        val notes = dbg.getNotesByCrop(crop.cropName)
+        val notes = dbg.getNotesByCrop(crop.name)
         notes?.forEach {
             dbg.deleteNote(it)
         }
@@ -425,9 +420,9 @@ class MainActivity :
         mNavController.navigate(
             R.id.action_cropFragment_to_cropNotesFragment,
             bundleOf(
-                Pair(CROP_NAME, crop.cropName),
-                Pair(CROP_TYPE, crop.cropType),
-                Pair(CROP_NOTES, dbg.getNotesByCrop(crop.cropName))
+                Pair(CROP_NAME, crop.name),
+                Pair(CROP_TYPE, crop.type),
+                Pair(CROP_NOTES, dbg.getNotesByCrop(crop.name))
             )
         )
     }
@@ -524,7 +519,7 @@ class MainActivity :
         }
 
         val crop = mSavedCrops.find {
-            it.cropName == note.cropName
+            it.name == note.cropName
         }
         if (crop != null) {
             if (maybeNote == null) {
@@ -543,9 +538,9 @@ class MainActivity :
             mNavController.navigate(
                 R.id.action_noteFragment_to_cropNotesFragment,
                 bundleOf(
-                    Pair(CROP_NAME, crop?.cropName),
-                    Pair(CROP_TYPE, crop?.cropType),
-                    Pair(CROP_NOTES, crop?.cropName?.let { dbg.getNotesByCrop(it) })
+                    Pair(CROP_NAME, crop?.name),
+                    Pair(CROP_TYPE, crop?.type),
+                    Pair(CROP_NOTES, crop?.name?.let { dbg.getNotesByCrop(it) })
                 )
 
             )
@@ -565,17 +560,17 @@ class MainActivity :
          dbg.deleteNote(note)
 
         val savedCrop = mSavedCrops.find {
-            it.cropName == note.cropName
+            it.name == note.cropName
         }
 
         // Re-navigate
         mNavController.navigate(
             R.id.action_noteFragment_to_cropNotesFragment,
             bundleOf(
-                Pair(CROP_NAME, savedCrop!!.cropName),
-                Pair(CROP_TYPE, savedCrop.cropType),
+                Pair(CROP_NAME, savedCrop!!.name),
+                Pair(CROP_TYPE, savedCrop.type),
                 when(mAllNotes) {
-                    false -> Pair(CROP_NOTES, dbg.getNotesByCrop(savedCrop.cropName))
+                    false -> Pair(CROP_NOTES, dbg.getNotesByCrop(savedCrop.name))
                     true -> Pair(CROP_NOTES, getAllNotes())
                 }
             )
@@ -592,51 +587,42 @@ class MainActivity :
     class DateTimeReceiver() : BroadcastReceiver() {
 
         private val TAG = "DATE_TIME_RECEIVER"
-        private val mCalendar : Calendar = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
 
         private var thisCrop: Crop
         private var harvest: Int = 0
-        private var water: Int = 0
+        private var water: ArrayList<Int> = ArrayList()
 
         init {
             thisCrop = Crop()
         }
 
-        constructor(crop: Crop, harv: Int, wat: Int) : this() {
+        constructor(crop: Crop) : this() {
             thisCrop = crop
-            harvest = harv
-            water = wat
+            harvest = crop.harvestDay
+            water = crop.waterHoursFromString()
         }
 
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.d(TAG, "Received an intent: ${intent.toString()}")
             if (intent != null) {
                 if (intent.action == "android.intent.action.TIME_TICK") {
-                    val currentD = mCalendar.get(Calendar.DAY_OF_YEAR)
-                    val currentT = mCalendar.get(Calendar.HOUR_OF_DAY)
+
+                    // Update current crop date
+                    thisCrop.updateCropDate()
+
                     // Check if crop ready to harvest
-                    if (currentD == harvest) {
+                    if (thisCrop.checkReadyToHarvest()) {
                         thisCrop.setReadyToHarvest()
+                        // TODO notify user crop is ready to harvest
                     }
-                    if (currentT == water) { // Check if crop needs water
 
-                        // Update next watering hour
-                        thisCrop.nextWaterHour =
-                            mCalendar.get(Calendar.HOUR_OF_DAY) + thisCrop.waterFreq
-                        water = thisCrop.nextWaterHour
+                    // Check if crop needs water
+                    thisCrop.updateNeedsWater()
 
-                        // Check if crop has been watered in the required time
-                        if (!thisCrop.watered()) {
-                            // Set as dehyrdrated
-                            thisCrop.setDehydrated()
-                        }
-
-                        // Update thirst status
-                        thisCrop.needsWater = true
+                    if (thisCrop.needsWater) {
+                        // TODO notify user crop needs to be watered
                     }
-                    // Update current times for the crop
-                    thisCrop.setCurrentD(currentD)
-                    thisCrop.setCurrentT(currentT)
+
                 }
             }
         }

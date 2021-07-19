@@ -10,17 +10,12 @@ import java.util.*
 class Crop()
     : Serializable {
 
-    var cropName : String = "N/A"
-    var cropType : String = "N/A"
-    var growthTime : Int = 0
-    var waterFreq : Int = 0
+    constructor(cropName: String, cropType: String, growth: Int, water: ArrayList<Int>) : this() {
 
-    constructor(name: String, type: String, growth: Int, water: Int) : this() {
-
-        cropName = name
-        cropType = type
+        name = cropName
+        type = cropType
         growthTime = growth
-        // waterFreq = water
+        waterHours = waterHoursToString(water)
 
         // Calculate growth time
         harvestDay = 0
@@ -39,25 +34,21 @@ class Crop()
         readyToHarvest = false
     }
 
-    constructor(cy: Int, cd: Int, ch: Int, nm: String, typ: String,
-                mems: String, currDay: Int, currHour: Int,
-                wLast: Int, wNeed: Boolean, dehyd: Boolean,
-                harvDay: Int, hrBtwWater: Int, nextWater: Int,
-                readyHarv: Boolean) : this() {
+    constructor(cy: Int, cd: Int, ch: Int, nm: String, typ: String, growth: Int,
+                water: ArrayList<Int>, mems: String, currDay: Int, currHour: Int,
+                wNeed: Boolean, harvDay: Int, readyHarv: Boolean) : this() {
         creationYear = cy
         creationDay = cd
         creationHour = ch
         name = nm
         type = typ
+        growthTime = growth
+        waterHours = waterHoursToString(water)
         memories = mems
         currentDay = currDay
         currentHour = currHour
-        // lastWater = wLast
         needsWater = wNeed
-        // dehydrated = dehyd
         harvestDay = harvDay
-        // hoursBetweenWater = hrBtwWater
-        // nextWaterHour = nextWater
         readyToHarvest = readyHarv
     }
 
@@ -69,28 +60,41 @@ class Crop()
     var creationYear = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
                         .get(Calendar.YEAR)
 
+    @ColumnInfo(name = "creation_month")
+    var creationMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+                        .get(Calendar.MONTH)
+
     @ColumnInfo(name = "creation_day")
     var creationDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                        .get(Calendar.DAY_OF_YEAR)
+                        .get(Calendar.DAY_OF_MONTH)
 
     @ColumnInfo(name = "creation_hour")
     var creationHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
                         .get(Calendar.HOUR_OF_DAY)
 
     @ColumnInfo(name = "crop_name")
-    var name : String = cropName
+    var name : String = ""
 
     @ColumnInfo(name = "crop_type")
-    var type : String = cropType
+    var type : String = ""
+
+    @ColumnInfo(name = "growth_time")
+    var growthTime : Int = 0
+
+    @ColumnInfo(name = "water_hours")
+    var waterHours: String = ""
 
     @ColumnInfo(name = "harvest_progress")
     var growthProg : Int = harvestProgress()
 
-    @ColumnInfo(name = "water_progress")
-    var waterProg : Int = 0
-
     @ColumnInfo(name = "crop_memories")
     var memories = ""
+
+    @ColumnInfo(name = "current_year")
+    var currentYear: Int = creationYear
+
+    @ColumnInfo(name = "current_month")
+    var currentMonth: Int = creationMonth
 
     @ColumnInfo(name = "current_day")
     var currentDay  : Int = creationDay
@@ -98,48 +102,66 @@ class Crop()
     @ColumnInfo(name = "current_hour")
     var currentHour : Int = creationHour
 
-    //@ColumnInfo(name = "last_water")
-    //var lastWater : Int = currentHour
-
     @ColumnInfo(name = "needs_water")
-    var needsWater : Boolean = true
-
-    @ColumnInfo(name = "water_hours")
-    var waterHours: ArrayList<Int> = ArrayList()
-
-    //@ColumnInfo(name = "dehydrated")
-    //var dehydrated : Boolean = false
+    var needsWater : Boolean = false
 
     @ColumnInfo(name = "harvest_day")
     var harvestDay : Int = 0
-
-    //@ColumnInfo(name = "water_frequency_hours")
-    //var hoursBetweenWater : Int = 0
-
-    //@ColumnInfo(name = "next_water")
-    //var nextWaterHour : Int = 0
 
     @ColumnInfo(name = "ready_to_harvest")
     var readyToHarvest : Boolean = false
 
 
     fun setReadyToHarvest() { readyToHarvest = true }
-   // fun readyToHarvest() : Boolean { return readyToHarvest }
+
+    // Assumes current date data is up-to-date
+    fun checkReadyToHarvest(): Boolean {
+        if (harvestDay <= currentDay) return true
+        return false
+    }
     fun water() {
         needsWater = false
-       // lastWater = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-       //             .get(Calendar.HOUR_OF_DAY)
     }
-    fun watered() : Boolean { return !needsWater }
 
-    /*
-    fun setDehydrated() {
-        dehydrated = true
+    // Assumes current date data is up-to-date
+    fun updateNeedsWater() {
+        for (hour in waterHoursFromString().reversed()) {
+            if (currentHour < hour) continue // Continue until
+            if (currentHour >= hour) { // Time for water
+                needsWater = true
+                break
+            }
+        }
     }
-     */
 
-    fun setCurrentD(day: Int) { currentDay = day }
-    fun setCurrentT(hour: Int) { currentHour = hour }
+    // Update the current year
+    fun updateCurrentY() {
+        currentYear = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.YEAR)
+    }
+    // Update the current month
+    fun updateCurrentM() {
+        currentMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.MONTH)
+    }
+    // Update the current day
+    fun updateCurrentD() {
+        currentDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.DAY_OF_MONTH)
+    }
+    // Update the current hour
+    fun updateCurrentH() {
+        currentHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.HOUR_OF_DAY)
+    }
+
+    // Update current date data
+    fun updateCropDate() {
+        updateCurrentY()
+        updateCurrentM()
+        updateCurrentD()
+        updateCurrentH()
+    }
 
     fun harvestProgress(): Int {
         val daysUntilHarvest = harvestDay - currentDay
@@ -150,19 +172,29 @@ class Crop()
         }
         return progress
     }
-    /*
-    fun waterProgress() : Int {
-        val hoursUntilWater = nextWaterHour - currentHour
-        val hoursPassed = hoursBetweenWater - hoursUntilWater
-        var progress = 0
-        if (hoursBetweenWater != 0) {
-            progress = hoursPassed / hoursBetweenWater
-        }
-        return progress
-    }
-     */
 
-    private fun memoriesToString(memories: List<String>) : String {
+    private fun waterHoursToString(hours: ArrayList<Int>): String {
+        var final = ""
+        hours.forEach {
+            final += "$it`"
+        }
+        final += "|"
+        return final
+    }
+
+    fun waterHoursFromString(): ArrayList<Int> {
+        val hours: ArrayList<Int> = ArrayList()
+        waterHours.forEach {
+            if (it != '|') {
+                if (it != '`') {
+                    hours.add(it.digitToInt())
+                }
+            }
+        }
+        return hours
+    }
+
+    private fun memoriesToString(memories: List<String>): String {
         var final = ""
         memories.forEach {
             final += "$it,"
@@ -171,7 +203,7 @@ class Crop()
         return final
     }
 
-    fun memoriesFromString() : List<String> {
+    fun memoriesFromString(): List<String> {
         val final = ArrayList<String>()
         var temp = ""
         memories.forEach {

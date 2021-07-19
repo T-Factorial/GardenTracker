@@ -5,18 +5,17 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.example.GardenTracker.model.Crop
 
-private const val ARG_NEW_CROP = "new-crop"
+private const val NEW_CROP = "new-crop"
 private const val CROP_NAME = "crop-name"
 private const val CROP_TYPE = "crop-type"
 private const val GROWTH_TIME = "growth-time"
-private const val WATER_FREQ = "water-freq"
+private const val WATER_HOURS = "water-hours"
 
 class AddCropDialog : DialogFragment() {
 
@@ -33,8 +32,58 @@ class AddCropDialog : DialogFragment() {
             val nameInput: EditText = view.findViewById(R.id.crop_name_input)
             val typeInput: Spinner = view.findViewById(R.id.crop_type_input)
             val harvestInput: EditText = view.findViewById(R.id.crop_growth_input)
-            val waterInput: EditText = view.findViewById(R.id.water_freq_input)
+            val waterLabel: TextView = view.findViewById(R.id.waterHoursLabel)
+            val waterInput: Spinner = view.findViewById(R.id.water_hours_input)
 
+            val waterHours: ArrayList<Int> = ArrayList()
+
+            // Set listener for waterInput spinner
+            waterInput.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    if (parent != null) {
+                        val selectedTime = parent.getItemAtPosition(position).toString()
+                        waterLabel.text = "${waterLabel.text}, $selectedTime"
+                        when (selectedTime) {
+                            parent.getItemAtPosition(0) -> waterHours.add(0)
+                            parent.getItemAtPosition(1) -> waterHours.add(1)
+                            parent.getItemAtPosition(2) -> waterHours.add(2)
+                            parent.getItemAtPosition(3) -> waterHours.add(3)
+                            parent.getItemAtPosition(4) -> waterHours.add(4)
+                            parent.getItemAtPosition(5) -> waterHours.add(5)
+                            parent.getItemAtPosition(6) -> waterHours.add(6)
+                            parent.getItemAtPosition(7) -> waterHours.add(7)
+                            parent.getItemAtPosition(8) -> waterHours.add(8)
+                            parent.getItemAtPosition(9) -> waterHours.add(9)
+                            parent.getItemAtPosition(10) -> waterHours.add(10)
+                            parent.getItemAtPosition(11) -> waterHours.add(11)
+                            parent.getItemAtPosition(12) -> waterHours.add(12)
+                            parent.getItemAtPosition(13) -> waterHours.add(13)
+                            parent.getItemAtPosition(14) -> waterHours.add(14)
+                            parent.getItemAtPosition(15) -> waterHours.add(15)
+                            parent.getItemAtPosition(16) -> waterHours.add(16)
+                            parent.getItemAtPosition(17) -> waterHours.add(17)
+                            parent.getItemAtPosition(18) -> waterHours.add(18)
+                            parent.getItemAtPosition(19) -> waterHours.add(19)
+                            parent.getItemAtPosition(20) -> waterHours.add(20)
+                            parent.getItemAtPosition(21) -> waterHours.add(21)
+                            parent.getItemAtPosition(22) -> waterHours.add(22)
+                            parent.getItemAtPosition(23) -> waterHours.add(23)
+                        }
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    TODO("Not yet implemented")
+                }
+            }
+
+
+            // Build dialog
             builder.setMessage(R.string.NewCropDialogTitle)
                 .setView(view)
                 .setPositiveButton(R.string.PosButt,
@@ -43,7 +92,7 @@ class AddCropDialog : DialogFragment() {
                         val name = nameInput.text.toString()
                         val type = typeInput.selectedItem.toString()
                         val growth = harvestInput.text
-                        val water = waterInput.text
+
                         if (name.isEmpty()) {
                             err = true
                             Toast.makeText(
@@ -65,7 +114,7 @@ class AddCropDialog : DialogFragment() {
                                 "You did not enter a growth time.", Toast.LENGTH_SHORT
                             ).show()
                         }
-                        if (water.isEmpty()) {
+                        if (waterHours.isEmpty()) {
                             err = true
                             Toast.makeText(
                                 context,
@@ -76,13 +125,10 @@ class AddCropDialog : DialogFragment() {
                         if (!err) {
                             var newCrop = Crop(
                                 name, type,
-                                growth.toString().toInt(), water.toString().toInt()
+                                growth.toString().toInt(), waterHours
                             )
                             var newCropData = bundleOf(
-                                Pair(CROP_NAME, name),
-                                Pair(CROP_TYPE, type),
-                                Pair(GROWTH_TIME, growth.toString().toInt()),
-                                Pair(WATER_FREQ, growth.toString().toInt())
+                                Pair(NEW_CROP, newCrop)
                             )
                             listener?.onDialogAccept(newCropData)
                         }

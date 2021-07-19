@@ -11,6 +11,7 @@
     <string name="DrawerOpen">Open</string>
     <string name="DrawerClose">Close</string>
     <string name="TypeDialogHint">Crop Type</string>
+    <string name="WaterDialogText">Add hours at which needs to be watered</string>
     <string name="GrowthLabel">Growth</string>
     <string name="WaterLabel">Next Water</string>
     <string name="CropTitle">Your\ </string>
@@ -21,5 +22,32 @@
         <item>Herb</item>
         <item>Vegetable</item>
         <item>Fruit</item>
+    </string-array>
+
+    <string-array name="water_hours_spinner_list">
+        <item>12:00 AM</item>
+        <item>1:00 AM</item>
+        <item>2:00 AM</item>
+        <item>3:00 AM</item>
+        <item>4:00 AM</item>
+        <item>5:00 AM</item>
+        <item>6:00 AM</item>
+        <item>7:00 AM</item>
+        <item>8:00 AM</item>
+        <item>9:00 AM</item>
+        <item>10:00 AM</item>
+        <item>11:00 AM</item>
+        <item>12:00 PM</item>
+        <item>1:00 PM</item>
+        <item>2:00 PM</item>
+        <item>3:00 PM</item>
+        <item>4:00 PM</item>
+        <item>5:00 PM</item>
+        <item>6:00 PM</item>
+        <item>7:00 PM</item>
+        <item>8:00 PM</item>
+        <item>9:00 PM</item>
+        <item>10:00 PM</item>
+        <item>11:00 PM</item>
     </string-array>
 </resources>
