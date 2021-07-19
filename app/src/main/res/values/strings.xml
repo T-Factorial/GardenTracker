@@ -12,6 +12,7 @@
     <string name="DrawerClose">Close</string>
     <string name="TypeDialogHint">Crop Type</string>
     <string name="WaterDialogText">Add hours at which needs to be watered</string>
+    <string name="WaterHoursDialogText">Watering Hours:</string>
     <string name="GrowthLabel">Growth</string>
     <string name="WaterLabel">Next Water</string>
     <string name="CropTitle">Your\ </string>

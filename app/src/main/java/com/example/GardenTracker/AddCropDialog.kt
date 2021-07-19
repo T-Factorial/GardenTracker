@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.core.os.bundleOf
@@ -21,6 +22,8 @@ class AddCropDialog : DialogFragment() {
 
     private var listener: OnCropDialogInteraction? = null
 
+    private val TAG = "ADD_CROP_DIALOG"
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
 
@@ -34,10 +37,32 @@ class AddCropDialog : DialogFragment() {
             val harvestInput: EditText = view.findViewById(R.id.crop_growth_input)
             val waterLabel: TextView = view.findViewById(R.id.waterHoursLabel)
             val waterInput: Spinner = view.findViewById(R.id.water_hours_input)
+            val undoButton: Button = view.findViewById(R.id.undo_hour_button)
+
+            var isTouched: Boolean = false
 
             val waterHours: ArrayList<Int> = ArrayList()
 
-            // Set listener for waterInput spinner
+            // Set click listener for undo add hour button
+            undoButton.setOnClickListener {
+                if (0 < waterHours.size) {
+                    waterHours.removeLast()
+                    waterLabel.text = waterLabel.text.dropLastWhile { c -> c != '\n' }
+                    waterLabel.text = waterLabel.text.dropLast(1)
+                }
+                if (0 == waterHours.size) {
+                    undoButton.visibility = View.INVISIBLE
+                }
+            }
+
+            // Set touch listener for waterInput spinner
+            waterInput.setOnTouchListener { v, event ->
+                v.performClick()
+                isTouched = true
+                false
+            }
+
+            // Set item select listener for waterInput spinner
             waterInput.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -45,9 +70,11 @@ class AddCropDialog : DialogFragment() {
                     position: Int,
                     id: Long
                 ) {
+                    if (!isTouched) return
                     if (parent != null) {
+                        Log.d(TAG, "Spinner item ${parent.getItemAtPosition(position)} selected.")
                         val selectedTime = parent.getItemAtPosition(position).toString()
-                        waterLabel.text = "${waterLabel.text}, $selectedTime"
+                        waterLabel.text = "${waterLabel.text}\n$selectedTime"
                         when (selectedTime) {
                             parent.getItemAtPosition(0) -> waterHours.add(0)
                             parent.getItemAtPosition(1) -> waterHours.add(1)
@@ -75,6 +102,7 @@ class AddCropDialog : DialogFragment() {
                             parent.getItemAtPosition(23) -> waterHours.add(23)
                         }
                     }
+                    undoButton.visibility = View.VISIBLE
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
