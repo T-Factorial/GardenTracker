@@ -20,7 +20,7 @@ class Crop()
         cropName = name
         cropType = type
         growthTime = growth
-        waterFreq = water
+        // waterFreq = water
 
         // Calculate growth time
         harvestDay = 0
@@ -52,12 +52,12 @@ class Crop()
         memories = mems
         currentDay = currDay
         currentHour = currHour
-        lastWater = wLast
+        // lastWater = wLast
         needsWater = wNeed
-        dehydrated = dehyd
+        // dehydrated = dehyd
         harvestDay = harvDay
-        hoursBetweenWater = hrBtwWater
-        nextWaterHour = nextWater
+        // hoursBetweenWater = hrBtwWater
+        // nextWaterHour = nextWater
         readyToHarvest = readyHarv
     }
 
@@ -87,7 +87,7 @@ class Crop()
     var growthProg : Int = harvestProgress()
 
     @ColumnInfo(name = "water_progress")
-    var waterProg : Int = waterProgress()
+    var waterProg : Int = 0
 
     @ColumnInfo(name = "crop_memories")
     var memories = ""
@@ -98,23 +98,26 @@ class Crop()
     @ColumnInfo(name = "current_hour")
     var currentHour : Int = creationHour
 
-    @ColumnInfo(name = "last_water")
-    var lastWater : Int = currentHour
+    //@ColumnInfo(name = "last_water")
+    //var lastWater : Int = currentHour
 
     @ColumnInfo(name = "needs_water")
     var needsWater : Boolean = true
 
-    @ColumnInfo(name = "dehydrated")
-    var dehydrated : Boolean = false
+    @ColumnInfo(name = "water_hours")
+    var waterHours: ArrayList<Int> = ArrayList()
+
+    //@ColumnInfo(name = "dehydrated")
+    //var dehydrated : Boolean = false
 
     @ColumnInfo(name = "harvest_day")
     var harvestDay : Int = 0
 
-    @ColumnInfo(name = "water_frequency_hours")
-    var hoursBetweenWater : Int = 0
+    //@ColumnInfo(name = "water_frequency_hours")
+    //var hoursBetweenWater : Int = 0
 
-    @ColumnInfo(name = "next_water")
-    var nextWaterHour : Int = 0
+    //@ColumnInfo(name = "next_water")
+    //var nextWaterHour : Int = 0
 
     @ColumnInfo(name = "ready_to_harvest")
     var readyToHarvest : Boolean = false
@@ -124,13 +127,16 @@ class Crop()
    // fun readyToHarvest() : Boolean { return readyToHarvest }
     fun water() {
         needsWater = false
-        lastWater = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                    .get(Calendar.HOUR_OF_DAY)
+       // lastWater = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+       //             .get(Calendar.HOUR_OF_DAY)
     }
     fun watered() : Boolean { return !needsWater }
+
+    /*
     fun setDehydrated() {
         dehydrated = true
     }
+     */
 
     fun setCurrentD(day: Int) { currentDay = day }
     fun setCurrentT(hour: Int) { currentHour = hour }
@@ -144,6 +150,7 @@ class Crop()
         }
         return progress
     }
+    /*
     fun waterProgress() : Int {
         val hoursUntilWater = nextWaterHour - currentHour
         val hoursPassed = hoursBetweenWater - hoursUntilWater
@@ -153,6 +160,7 @@ class Crop()
         }
         return progress
     }
+     */
 
     private fun memoriesToString(memories: List<String>) : String {
         var final = ""
