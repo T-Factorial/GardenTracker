@@ -22,6 +22,7 @@ class Crop()
         growthTime = growth
         waterFreq = water
 
+        // Calculate growth time
         harvestDay = 0
         var daysUntilNewYear = 0
         daysUntilNewYear = if (creationYear % 4 == 0) {
@@ -34,8 +35,6 @@ class Crop()
         } else {
             creationDay + growthTime
         }
-        hoursBetweenWater = 24 / waterFreq
-        nextWaterHour = currentHour + hoursBetweenWater
 
         readyToHarvest = false
     }

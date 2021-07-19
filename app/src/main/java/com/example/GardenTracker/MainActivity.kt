@@ -589,11 +589,27 @@ class MainActivity :
     // This Broadcast Receiver will be registered so that
     // we're (hopefully) constantly listening to the time
     // and it will then update our crops time variables and check if they're ready
-    class DateTimeReceiver(private val thisCrop: Crop, private val harvest: Int, private var water: Int) : BroadcastReceiver() {
+    class DateTimeReceiver() : BroadcastReceiver() {
 
+        private val TAG = "DATE_TIME_RECEIVER"
         private val mCalendar : Calendar = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
 
+        private var thisCrop: Crop
+        private var harvest: Int = 0
+        private var water: Int = 0
+
+        init {
+            thisCrop = Crop()
+        }
+
+        constructor(crop: Crop, harv: Int, wat: Int) : this() {
+            thisCrop = crop
+            harvest = harv
+            water = wat
+        }
+
         override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d(TAG, "Received an intent: ${intent.toString()}")
             if (intent != null) {
                 if (intent.action == "android.intent.action.TIME_TICK") {
                     val currentD = mCalendar.get(Calendar.DAY_OF_YEAR)
