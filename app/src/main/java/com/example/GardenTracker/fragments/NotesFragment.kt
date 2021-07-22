@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,9 +21,10 @@ import com.example.GardenTracker.database.DatabaseGateway
 import com.example.GardenTracker.model.Note
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-// TODO: Change method by which we determine this is crop specific notes or all notes
 
 class NotesFragment : Fragment() {
+
+    private val TAG = "NOTES_FRAGMENT"
 
     private var columnCount = 1
     private var mCropName: String? = null
@@ -43,6 +45,7 @@ class NotesFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
+            Log.d(TAG, "Unpacking savedInstanceState arguments.")
             mCropName = it.getString(CROP_NAME).toString()
             mCropType = it.getString(CROP_TYPE).toString()
             mCropNotes = it.getSerializable(CROP_NOTES) as ArrayList<Note>
@@ -85,6 +88,7 @@ class NotesFragment : Fragment() {
                 else -> GridLayoutManager(context, columnCount)
             }
             if (mCropNotes != null) {
+                Log.d(TAG, "Loading crop notes.")
                 adapter =
                     MyGardenNoteAdapter(
                         mDrawable,
@@ -93,8 +97,10 @@ class NotesFragment : Fragment() {
                         listener
                     )
             } else {
+                Log.d(TAG, "Need notes from database. Retrieving.")
                 val notes = dbg.getAllNotes()
                 if (notes != null) {
+                    Log.d(TAG, "Successfully retrieved notes from database.")
                     adapter =
                         MyGardenNoteAdapter(
                             mDrawable,
@@ -103,6 +109,7 @@ class NotesFragment : Fragment() {
                             listener
                         )
                 } else {
+                    Log.e(TAG, "Failed to retrieve notes from database.")
                     adapter =
                         MyGardenNoteAdapter(
                             mDrawable,
@@ -118,11 +125,13 @@ class NotesFragment : Fragment() {
 
         // Add click listener to FAB
         if (mCropName != "null") {
+            Log.d(TAG, "AddNoteBtn available to user.")
             addNoteBtn.setOnClickListener() {
                 // Bring up note editor
                 listener?.onAddNoteBtnPressed(mCropName!!, mCropType!!)
             }
         } else {
+            Log.d(TAG, "Hiding AddNoteBtn from user.")
             addNoteBtn.hide()
         }
 

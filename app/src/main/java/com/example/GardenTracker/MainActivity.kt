@@ -84,6 +84,7 @@ class MainActivity :
         // Load saved data
         if (savedInstanceState != null) {
             if (!savedInstanceState.isEmpty) {
+                Log.d(TAG, "Getting crops from savedInstanceState")
                 mSavedCrops = savedInstanceState.get(ARG_CROP_LIST) as ArrayList<Crop>
             }
         } else {
@@ -91,8 +92,10 @@ class MainActivity :
         }
 
         if (dbg.cropDataToLoad()) {
+            Log.d(TAG, "Loading crops from database...")
             mSavedCrops = dbg.getAllCrops() as ArrayList<Crop>
         } else {
+            Log.d(TAG, "No crops to load.")
             mSavedCrops = ArrayList()
         }
 
@@ -123,12 +126,15 @@ class MainActivity :
     override fun onStop() {
         super.onStop()
 
+        Log.d(TAG,"onStop closing databases...")
         // Close databases
         dbg.closeCropDb()
         dbg.closeNoteDb()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+
+        Log.d(TAG, "Saving instance state...")
 
         // Save Crop states
         outState.putSerializable(ARG_CROP_LIST, mSavedCrops)
@@ -148,6 +154,7 @@ class MainActivity :
     }
 
     private fun registerCropDateTimeReceiver(crop: Crop) {
+        Log.d(TAG, "Registering DateTimeReceiver w/ crop: $crop")
         val intentFilter = IntentFilter()
         val receiver = DateTimeReceiver(crop)
         intentFilter.addAction("android.intent.action.TIME_TICK")
@@ -157,8 +164,10 @@ class MainActivity :
     private fun getAllNotes() : ArrayList<Note> {
         val allNotes: List<Note>? = dbg.getAllNotes()
         if (allNotes != null) {
+            Log.d(TAG, "Retrieved all notes from database.")
             return allNotes.toCollection(ArrayList())
         }
+        Log.e(TAG, "No notes retrieved from database.")
         return ArrayList()
     }
 
@@ -271,10 +280,12 @@ class MainActivity :
      * BEGIN NAVIGATION OVERRIDES
      ****************************************************************************************/
     override fun onSupportNavigateUp() : Boolean {
+        Log.d(TAG, "onSupportNavigateUp() called.")
         return NavigationUI.navigateUp(mNavController, mDrawerLayout)
     }
 
     override fun onBackPressed() {
+        Log.d(TAG, "onBackPresed() called")
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START)
         } else {
@@ -287,6 +298,7 @@ class MainActivity :
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         item.setChecked(true)
         mDrawerLayout.closeDrawers()
+        Log.d(TAG, "Navigating to id: ${item.itemId}")
         when (item.itemId) {
             R.id.your_garden_item -> {
                 mAllNotes = false
@@ -347,6 +359,8 @@ class MainActivity :
         val nCrop = newCrop.get(NEW_CROP) as Crop
         mSavedCrops.add(nCrop)
 
+        Log.d(TAG, "New Crop received.")
+
         // Register Crop's broadcast receiver
         registerCropDateTimeReceiver(nCrop)
 
@@ -369,6 +383,7 @@ class MainActivity :
         val contain = ArrayList<Crop>()
         contain.add(item)
         val memories = loadBitmaps(item)
+        Log.d(TAG, "Navigating to Crop Status fragment.")
         mNavController.navigate(
             R.id.action_cropListFragment_to_cropFragment,
             bundleOf(
@@ -392,6 +407,7 @@ class MainActivity :
     override fun waterCrop(crop: Crop) {
         mSavedCrops[mSavedCrops.indexOf(crop)].water()
         dbg.updateCrop(crop)
+        Log.d(TAG, "Crop watered.")
     }
 
     override fun removeCrop(crop: Crop) {
@@ -402,11 +418,13 @@ class MainActivity :
         val notes = dbg.getNotesByCrop(crop.name)
         notes?.forEach {
             dbg.deleteNote(it)
+            Log.d(TAG, "Deleted note: $it")
         }
 
         // Remove crop from database
         dbg.deleteCrop(crop)
 
+        Log.d(TAG, "Deleted crop: $crop. Navigating to Crop List fragment.")
         mNavController.navigate(
             R.id.action_cropFragment_to_cropListFragment,
             bundleOf(
@@ -417,6 +435,7 @@ class MainActivity :
     }
 
     override fun goToNotes(crop: Crop) {
+        Log.d(TAG, "Navigating to crop notes for: $crop")
         mNavController.navigate(
             R.id.action_cropFragment_to_cropNotesFragment,
             bundleOf(
@@ -428,6 +447,7 @@ class MainActivity :
     }
 
     override fun onMemorySelect(bm: Bitmap) {
+        Log.d(TAG, "Navigating to Memory Display fragment")
         mNavController.navigate(
             R.id.action_cropFragment_to_memoryDisplayFragment,
             bundleOf(
@@ -437,6 +457,7 @@ class MainActivity :
     }
 
     override fun startCameraActivity() {
+        Log.d(TAG, "Starting camera activity.")
         startActivityForResult(iCapture, CAMERA_REQUEST)
     }
 
@@ -477,6 +498,7 @@ class MainActivity :
      * NOTE LIST OVERRIDES
      *************************************************************************************/
     override fun onNoteSelect(note: Note) {
+        Log.d(TAG, "Navigating to Note fragment.")
         mNavController.navigate(
             R.id.action_cropNotesFragment_to_noteFragment,
             bundleOf(
@@ -493,6 +515,7 @@ class MainActivity :
     }
 
     override fun onAddNoteBtnPressed(name: String, type: String) {
+        Log.d(TAG, "Navigating to note fragment.")
         mNavController.navigate(
             R.id.action_cropNotesFragment_to_noteFragment,
             bundleOf(
@@ -515,17 +538,21 @@ class MainActivity :
 
         // Check if note already exists
         val maybeNote = getAllNotes().find {
+            Log.d(TAG, "saveNote(note: Note): Note found.")
             it.id == note.id
         }
 
         val crop = mSavedCrops.find {
+            Log.d(TAG, "saveNote(note: Note): Crop found.")
             it.name == note.cropName
         }
         if (crop != null) {
+            Log.d(TAG, "Successfully found crop.")
             if (maybeNote == null) {
                 // Add note to database
                  dbg.insertOne(note)
             } else {
+                Log.d(TAG, "Updating note content.")
                 // Update note content
                 maybeNote.noteContent = note.noteContent
                 // Update note in database
@@ -535,6 +562,7 @@ class MainActivity :
 
         // Re-navigate
         if (!mAllNotes) {
+            Log.d(TAG, "Navigating to Crop Notes frag w/ only this crop notes.")
             mNavController.navigate(
                 R.id.action_noteFragment_to_cropNotesFragment,
                 bundleOf(
@@ -545,6 +573,7 @@ class MainActivity :
 
             )
         } else {
+            Log.d(TAG, "Navigating to Crop notes frag w/ all notes.")
             mNavController.navigate(
                 R.id.action_noteFragment_to_cropNotesFragment,
                 bundleOf(
@@ -560,9 +589,11 @@ class MainActivity :
          dbg.deleteNote(note)
 
         val savedCrop = mSavedCrops.find {
+            Log.d(TAG, "deleteNote(note: Note): Crop found")
             it.name == note.cropName
         }
 
+        Log.d(TAG, "Navigating to Crop Notes fragment.")
         // Re-navigate
         mNavController.navigate(
             R.id.action_noteFragment_to_cropNotesFragment,

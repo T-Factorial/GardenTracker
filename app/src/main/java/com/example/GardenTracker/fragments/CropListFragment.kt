@@ -3,6 +3,7 @@ package com.example.GardenTracker.fragments
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -20,6 +21,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 // I pretty much just load up the RecyclerView with the data I'm given!
 class CropListFragment : Fragment() {
 
+    private val TAG = "CROP_LIST_FRAGMENT"
+
     private var columnCount = 1
     private lateinit var mCropList: ArrayList<Crop>
     private lateinit var mDrawableResources: ArrayList<*>
@@ -34,6 +37,7 @@ class CropListFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
+            Log.d(TAG, "Unpacking savedInstanceState arguments.")
             columnCount = it.getInt(ARG_COLUMN_COUNT)
             mCropList = it.getSerializable(ARG_CROP_LIST) as ArrayList<Crop>
             mDrawableResources = it.getSerializable(ARG_DRAWABLES) as ArrayList<*>

@@ -41,6 +41,7 @@ class NoteFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            Log.d(TAG, "Unpacking savedInstanceState arguments.")
             mCropName = it.getString(CROP_NAME)
             mCropType = it.getString(CROP_TYPE)
             mNote = it.getSerializable(NOTE) as Note?
@@ -68,6 +69,7 @@ class NoteFragment : Fragment() {
         // Set EditText focus listener
         mTextArea.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
+                Log.d(TAG, "Text area has lost focus.")
                 val imm: InputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(v.windowToken, 0)
             }
@@ -82,8 +84,10 @@ class NoteFragment : Fragment() {
         // Set on-click listeners
         mSaveBtn.setOnClickListener(View.OnClickListener {
             if (mNote != null) {
+                Log.d(TAG, "Updating note.")
                 mNote!!.noteContent = mTextArea.text.toString()
             } else {
+                Log.d(TAG, "Creating new note.")
                 mNote = Note(mCropName!!, mCropType!!, mTextArea.text.toString())
             }
             listener?.saveNote(mNote!!)
@@ -91,6 +95,7 @@ class NoteFragment : Fragment() {
 
         mDeleteBtn.setOnClickListener(View.OnClickListener {
             if (mNote != null) {
+                Log.d(TAG, "Permanently deleting note.")
                 listener?.deleteNote(mNote!!)
             }
         })

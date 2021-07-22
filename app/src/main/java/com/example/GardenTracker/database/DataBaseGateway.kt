@@ -11,6 +11,8 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 
+// TODO: implement AsyncTasks for remaining methods.
+
 class DatabaseGateway constructor (context: Context) {
 
     companion object {
@@ -59,8 +61,8 @@ class DatabaseGateway constructor (context: Context) {
     fun getAllCrops() : ArrayList<Crop> {
 
         var crops: ArrayList<Crop> = ArrayList()
+        Log.d(TAG, "Retrieving crops from database...")
         try {
-            Log.d(TAG, "Retrieving crops from database...")
             crops = GetCropsTask().execute().get().toCollection(ArrayList())
         } catch (e: ExecutionException) {
             Log.e(TAG, "Exception caught: " + e.localizedMessage)
@@ -92,7 +94,7 @@ class DatabaseGateway constructor (context: Context) {
     fun cropDataToLoad() : Boolean {
 
         var numCrops = 0
-
+        Log.d(TAG, "Checking for crops to load.")
         try {
             numCrops = CheckCropsTask().execute().get()
         } catch (e: ExecutionException) {
@@ -118,6 +120,7 @@ class DatabaseGateway constructor (context: Context) {
     fun getCropByID(uid: Int) : Crop? {
 
         var crop: Crop? = null
+        Log.d(TAG, "Retrieving crop from database w/ UID: $uid")
         try {
             crop = CropByIDTask().execute(uid).get()
         } catch (e: ExecutionException) {
@@ -139,6 +142,7 @@ class DatabaseGateway constructor (context: Context) {
     fun getCropType(type: String) : List<Crop>? {
 
         var crops: ArrayList<Crop>? = null
+        Log.d(TAG, "Retrieving Crop type '$type' from database.")
         try {
             crops = CropsByTypeTask().execute(type).get().toCollection(ArrayList())
         } catch (e: ExecutionException) {
@@ -181,6 +185,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun insertCrop(crop: Crop) {
+        Log.d(TAG, "Inserting into database crop: $crop")
         try {
             InsertTask().execute(crop)
         } catch (e: ExecutionException) {
@@ -199,6 +204,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun insertCrops(crops: ArrayList<Crop>) {
+        Log.d(TAG, "Inserting list of crops into database.")
         try {
             InsertAllTask().execute(crops)
         } catch (e: ExecutionException) {
@@ -217,6 +223,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun updateCrop(crop: Crop) {
+        Log.d(TAG, "Updating in database crop: $crop.")
         try {
             UpdateCropTask().execute(crop)
         } catch (e: ExecutionException) {
@@ -235,6 +242,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun updateCrops(crops: ArrayList<Crop>) {
+        Log.d(TAG, "Updating list of crops in database.")
         try {
             UpdateCropsTask().execute(crops)
         } catch (e: ExecutionException) {
@@ -253,6 +261,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun deleteCrop(crop: Crop) {
+        Log.d(TAG, "Deleting from database crop: $crop.")
         try {
             DeleteCropTask().execute(crop)
         } catch (e: ExecutionException) {
@@ -271,6 +280,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun nukeCrops() {
+        Log.d(TAG, "Nuking Crop database table.")
         try {
             NukeCropsTask().execute()
         } catch (e: ExecutionException) {
@@ -298,6 +308,7 @@ class DatabaseGateway constructor (context: Context) {
 
 
     fun getNumNotes(): Int {
+        Log.d(TAG, "Retrieving number of notes stored in database.")
         return NumNotesTask().execute().get()
     }
 
@@ -308,6 +319,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun getAllNotes(): List<Note>? {
+        Log.d(TAG, "Retrieving all notes from database.")
         try {
             return AllNotesTask().execute().get()
         } catch (e: ExecutionException) {
@@ -328,6 +340,7 @@ class DatabaseGateway constructor (context: Context) {
 
     fun getNoteByUid(noteID: Int) : Note? {
         var note: Note? = null
+        Log.d(TAG, "Retrieving note from database w/ UID: $noteID")
         try {
             note = NoteByIDTask().execute(noteID).get()
         } catch (e: ExecutionException) {
@@ -347,6 +360,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun getNotesByCrop(name: String) : List<Note>? {
+        Log.d(TAG, "Retrieving notes from database by crop: $name")
         var list: List<Note>? = null
         try {
             list = NotesByCropTask().execute(name).get()
@@ -367,6 +381,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun getNotesByType(type: String) : List<Note>? {
+        Log.d(TAG, "Retrieving notes from database by type: $type.")
         var list: List<Note>? = null
         try {
             list = NotesByTypeTask().execute(type).get()
@@ -387,6 +402,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun insertOne(newNote: Note) {
+        Log.d(TAG, "Inserting into database note: $newNote.")
         try {
             InsertNoteTask().execute(newNote)
         } catch (e: ExecutionException) {
@@ -405,6 +421,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun insertAll(newNotes: List<Note>) {
+        Log.d(TAG, "Inserting list of notes into database.")
         try {
             InsertNotesTask().execute(newNotes)
         } catch (e: ExecutionException) {
@@ -423,6 +440,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun updateNote(note: Note) {
+        Log.d(TAG, "Updating in database note: $note")
         try {
             UpdateNoteTask().execute(note)
         } catch (e: ExecutionException) {
@@ -441,6 +459,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun updateNotes(notes: List<Note>) {
+        Log.d(TAG, "Updating list of notes in database.")
         try {
             UpdateNotesTask().execute(notes)
         } catch (e: ExecutionException) {
@@ -459,6 +478,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun deleteNote(delNote: Note) {
+        Log.d(TAG, "Deleting from database note: $delNote")
         try {
             DeleteNoteTask().execute(delNote)
         } catch (e: ExecutionException) {
@@ -477,6 +497,7 @@ class DatabaseGateway constructor (context: Context) {
     }
 
     fun nukeNotes() {
+        Log.d(TAG, "Nuking Note table from database.")
         try {
             NukeNotesTask().execute()
         } catch (e: ExecutionException) {

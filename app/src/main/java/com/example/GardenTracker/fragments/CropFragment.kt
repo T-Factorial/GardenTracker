@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +28,8 @@ private const val CAMERA_REQUEST = 0
 
 class CropFragment : Fragment() {
 
+    private val TAG = "CROP_FRAGMENT"
+
     private lateinit var mStatusCrop : Crop
     private lateinit var mDrawables : ArrayList<Drawable>
 
@@ -40,6 +43,7 @@ class CropFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            Log.d(TAG, "Unpacking savedInstanceState arguments.")
             mStatusCrop = (it.getSerializable(STATUS_CROP) as ArrayList<Crop>).get(0)
             mDrawables = it.getSerializable(ARG_DRAWABLES) as ArrayList<Drawable>
             mCropMemories = it.getSerializable(CROP_MEMORIES) as ArrayList<Bitmap>
@@ -73,6 +77,7 @@ class CropFragment : Fragment() {
 
         // Set up with crop data
         titleBox.append(mStatusCrop.name)
+        Log.d(TAG, "Updating crop logo.")
         when(mStatusCrop.type) {
             "Flower" -> cropType.setImageDrawable(mDrawables[0])
             "Herb" -> cropType.setImageDrawable(mDrawables[1])
@@ -121,9 +126,11 @@ class CropFragment : Fragment() {
 
         if (requestCode == CAMERA_REQUEST) {
             if (data != null) {
+                Log.d(TAG, "Data exists to unpack")
                 if (data.extras != null) {
                     val extras = data.extras
                     if (extras?.get("data") != null) {
+                        Log.d(TAG, "Successfully retreived data.")
                         val image : Bitmap = extras.get("data") as Bitmap
                         //mCropMemories.add(image)
                         listener?.saveNewMemory(mStatusCrop, image)
