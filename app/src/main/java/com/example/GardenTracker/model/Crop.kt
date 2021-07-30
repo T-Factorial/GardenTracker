@@ -124,10 +124,10 @@ class Crop()
     }
 
     // Assumes current date data is up-to-date
-    fun updateNeedsWater() {
+    fun updateNeedsWater(currHour: Int) {
         for (hour in waterHoursFromString().reversed()) {
-            if (currentHour < hour) continue // Continue until
-            if (currentHour >= hour) { // Time for water
+            if (currHour < hour) continue // Continue until
+            if (currHour >= hour) { // Time for water
                 needsWater = true
                 break
             }

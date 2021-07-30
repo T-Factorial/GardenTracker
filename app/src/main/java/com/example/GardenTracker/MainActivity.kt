@@ -50,6 +50,15 @@ private const val DISPLAY_MEMORY = "display-memory"
 private const val CAMERA_REQUEST = 0
 private const val FROM_ALL_NOTES = "from-all-notes"
 
+private var currYear = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+    .get(Calendar.YEAR)
+private var currMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+    .get(Calendar.MONTH)
+private var currDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+    .get(Calendar.DAY_OF_MONTH)
+private var currHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+    .get(Calendar.HOUR_OF_DAY)
+
 class MainActivity :
     AppCompatActivity(),
     NavigationView.OnNavigationItemSelectedListener,
@@ -65,6 +74,8 @@ class MainActivity :
 
     private var mAllNotes: Boolean = true
 
+    private var receiver: DateTimeReceiver? = null
+
     private lateinit var dbg: DatabaseGateway
     private lateinit var mSavedCrops: ArrayList<Crop>
 
@@ -77,6 +88,11 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Register DateTime Receiver
+        Log.d(TAG, "Registering DateTimeReceiver...")
+        receiver = DateTimeReceiver()
+        registerReceiver(receiver, IntentFilter("android.intent.action.TIME_TICK"))
 
         // Get database gateway
         dbg = DatabaseGateway(this)
@@ -126,6 +142,12 @@ class MainActivity :
     override fun onStop() {
         super.onStop()
 
+        // Unregister DateTimeReceiver
+        Log.d(TAG, "onStop unregistering broadcast receiver...")
+        if (receiver != null) {
+            unregisterReceiver(receiver)
+        }
+
         Log.d(TAG,"onStop closing databases...")
         // Close databases
         dbg.closeCropDb()
@@ -142,6 +164,67 @@ class MainActivity :
         super.onSaveInstanceState(outState)
     }
 
+    private fun updateCropsTime() {
+        Log.d(TAG, "Updating the water status of all crops")
+        mSavedCrops.forEach {
+            it.updateNeedsWater(currHour)
+        }
+    }
+
+    // This Broadcast Receiver will be registered so that
+    // we're (hopefully) constantly listening to the time
+    // and it will then update our crops time variables and check if they're ready
+    class DateTimeReceiver() : BroadcastReceiver() {
+
+        private val TAG = "DATE_TIME_RECEIVER"
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d(TAG, "Received an intent: ${intent.toString()}")
+            if (intent != null) {
+                if (intent.action == "android.intent.action.TIME_TICK") { // Check intent matches
+                    if (currHour != GregorianCalendar.  // Only perform updates at each hour
+                                    getInstance(Locale("en_US@calendar=english"))
+                                    .get(Calendar.HOUR_OF_DAY)) {
+
+                        Log.d(TAG, "Updating app's date information")
+
+                        // Update the app's current date data
+                        currYear = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+                            .get(Calendar.YEAR)
+                        currMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+                            .get(Calendar.MONTH)
+                        currDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+                            .get(Calendar.DAY_OF_MONTH)
+                        currHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+                            .get(Calendar.HOUR_OF_DAY)
+
+                        // Check and update crops for watering
+                        MainActivity().updateCropsTime()
+                    }
+
+                    // TODO integrate the following commented-out code elsewhere in the program.
+                    /*
+                    // Update current crop date
+                    thisCrop.updateCropDate()
+
+                    // Check if crop ready to harvest
+                    if (thisCrop.checkReadyToHarvest()) {
+                        thisCrop.setReadyToHarvest()
+                        // TODO notify user crop is ready to harvest
+                    }
+
+                    // Check if crop needs water
+                    thisCrop.updateNeedsWater()
+
+                    if (thisCrop.needsWater) {
+                        // TODO notify user crop needs to be watered
+                    }
+                    */
+                }
+            }
+        }
+    }
+
     private fun loadDrawableResources() {
         val resources = ArrayList<Drawable>()
         for (x in 0..3) {
@@ -151,14 +234,6 @@ class MainActivity :
             }
         }
         mDrawableResources = resources
-    }
-
-    private fun registerCropDateTimeReceiver(crop: Crop) {
-        Log.d(TAG, "Registering DateTimeReceiver w/ crop: $crop")
-        val intentFilter = IntentFilter()
-        val receiver = DateTimeReceiver(crop)
-        intentFilter.addAction("android.intent.action.TIME_TICK")
-        registerReceiver(receiver, intentFilter)
     }
 
     private fun getAllNotes() : ArrayList<Note> {
@@ -360,9 +435,6 @@ class MainActivity :
         mSavedCrops.add(nCrop)
 
         Log.d(TAG, "New Crop received.")
-
-        // Register Crop's broadcast receiver
-        registerCropDateTimeReceiver(nCrop)
 
         // Update the list with new crop (re-navigate to the frag again)
         onSupportNavigateUp()
@@ -612,50 +684,4 @@ class MainActivity :
      * END NOTE OVERRIDES
      ***************************************************************************************/
 
-    // This Broadcast Receiver will be registered so that
-    // we're (hopefully) constantly listening to the time
-    // and it will then update our crops time variables and check if they're ready
-    class DateTimeReceiver() : BroadcastReceiver() {
-
-        private val TAG = "DATE_TIME_RECEIVER"
-
-        private var thisCrop: Crop
-        private var harvest: Int = 0
-        private var water: ArrayList<Int> = ArrayList()
-
-        init {
-            thisCrop = Crop()
-        }
-
-        constructor(crop: Crop) : this() {
-            thisCrop = crop
-            harvest = crop.harvestDay
-            water = crop.waterHoursFromString()
-        }
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d(TAG, "Received an intent: ${intent.toString()}")
-            if (intent != null) {
-                if (intent.action == "android.intent.action.TIME_TICK") {
-
-                    // Update current crop date
-                    thisCrop.updateCropDate()
-
-                    // Check if crop ready to harvest
-                    if (thisCrop.checkReadyToHarvest()) {
-                        thisCrop.setReadyToHarvest()
-                        // TODO notify user crop is ready to harvest
-                    }
-
-                    // Check if crop needs water
-                    thisCrop.updateNeedsWater()
-
-                    if (thisCrop.needsWater) {
-                        // TODO notify user crop needs to be watered
-                    }
-
-                }
-            }
-        }
-    }
 }
