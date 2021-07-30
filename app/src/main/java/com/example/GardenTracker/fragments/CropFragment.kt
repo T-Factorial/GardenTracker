@@ -3,6 +3,7 @@ package com.example.GardenTracker.fragments
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
@@ -66,8 +67,16 @@ class CropFragment : Fragment() {
         val titleBox : TextView = view.findViewById(R.id.crop_title)
         val cropType : ImageView = view.findViewById(R.id.crop_type)
         val cropLabel : TextView = view.findViewById(R.id.crop_label)
-        var harvestProgress : ProgressBar = view.findViewById(R.id.time_to_harvest)
+        val harvestProgress : ProgressBar = view.findViewById(R.id.time_to_harvest)
+        val waterStatus : TextView = view.findViewById(R.id.water_status_crop)
 
+        if (mStatusCrop.needsWater) {
+            waterStatus.text = "Thirsty"
+            waterStatus.setTextColor(Color.RED)
+        } else {
+            waterStatus.text = "Quenched"
+            waterStatus.setTextColor(Color.BLUE)
+        }
 
         // Get view buttons
         val waterButton: Button = view.findViewById(R.id.water_crop_button)

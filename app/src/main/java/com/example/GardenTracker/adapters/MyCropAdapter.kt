@@ -1,5 +1,6 @@
 package com.example.GardenTracker.adapters
 
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -53,6 +54,14 @@ class MyCropAdapter(
         holder.cropName.text = item.name
         holder.timeToHarvest.progress = item.harvestProgress()
 
+        if (item.needsWater) {
+            holder.waterStatus.text = "Thirsty"
+            holder.waterStatus.setTextColor(Color.RED)
+        } else {
+            holder.waterStatus.text = "Quenched"
+            holder.waterStatus.setTextColor(Color.BLUE)
+        }
+
         with(holder.mView) {
             tag = item
             setOnClickListener(mOnClickListener)
@@ -65,6 +74,7 @@ class MyCropAdapter(
         val cropType: ImageView = mView.crop_type
         val cropName: TextView = mView.crop_label
         val timeToHarvest: ProgressBar = mView.time_to_harvest
+        val waterStatus: TextView = mView.water_status
 
         /*
         override fun toString(): String {
