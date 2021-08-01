@@ -27,7 +27,6 @@ import com.example.GardenTracker.fragments.NotesFragment
 import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.model.Note
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -36,6 +35,7 @@ import kotlin.collections.ArrayList
 
 private const val ARG_COLUMN_COUNT = "column-count"
 private const val NEW_CROP = "new-crop"
+private const val EDIT_CROP = "edit-crop"
 private const val ARG_CROP_LIST = "crop-list"
 private const val ARG_DRAWABLES = "drawable-resources"
 private const val CROP_NAME = "crop-name"
@@ -51,20 +51,13 @@ private const val DISPLAY_MEMORY = "display-memory"
 private const val CAMERA_REQUEST = 0
 private const val FROM_ALL_NOTES = "from-all-notes"
 
-private var currYear = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-    .get(Calendar.YEAR)
-private var currMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-    .get(Calendar.MONTH)
-private var currDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-    .get(Calendar.DAY_OF_MONTH)
-private var currHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-    .get(Calendar.HOUR_OF_DAY)
-
 class MainActivity :
     AppCompatActivity(),
+    DateTimeReceiver.BroadcastReceiverListener,
     NavigationView.OnNavigationItemSelectedListener,
     CropListFragment.OnCropFragmentInteractionListener,
-    AddCropDialog.OnCropDialogInteraction,
+    AddCropDialog.OnAddCropDialogInteraction,
+    EditCropDialog.OnEditCropDialogInteraction,
     CropFragment.OnCropStatusListener,
     NotesFragment.OnNoteListInteractionListener,
     NoteFragment.OnNoteInteractionListener {
@@ -77,6 +70,8 @@ class MainActivity :
 
     private var receiver: DateTimeReceiver? = null
 
+    private var dateTimeHolder: DateTimeHolder = DateTimeHolder()
+
     private lateinit var dbg: DatabaseGateway
     private lateinit var mSavedCrops: ArrayList<Crop>
 
@@ -85,6 +80,17 @@ class MainActivity :
     private lateinit var mNavController: NavController
     private lateinit var mDrawableResources: ArrayList<Drawable>
 
+    class DateTimeHolder() {
+        var currYear: Int = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.YEAR)
+        var currMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.MONTH)
+        var currDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.DAY_OF_MONTH)
+        var currHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.HOUR_OF_DAY)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,7 +98,7 @@ class MainActivity :
 
         // Register DateTime Receiver
         Log.d(TAG, "Registering DateTimeReceiver...")
-        receiver = DateTimeReceiver()
+        receiver = DateTimeReceiver(dateTimeHolder)
         registerReceiver(receiver, IntentFilter("android.intent.action.TIME_TICK"))
 
         // Get database gateway
@@ -165,67 +171,16 @@ class MainActivity :
         super.onSaveInstanceState(outState)
     }
 
+    override fun timeUpdateCrops() {
+        updateCropsTime()
+    }
+
     private fun updateCropsTime() {
         Log.d(TAG, "Updating the water status of all crops")
         mSavedCrops.forEach {
-                it.updateNeedsWater(currHour)
+                it.updateNeedsWater(dateTimeHolder.currHour)
         }
 
-    }
-
-    // This Broadcast Receiver will be registered so that
-    // we're (hopefully) constantly listening to the time
-    // and it will then update our crops time variables and check if they're ready
-    class DateTimeReceiver() : BroadcastReceiver() {
-
-        private val TAG = "DATE_TIME_RECEIVER"
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d(TAG, "Received an intent: ${intent.toString()}")
-            if (intent != null) {
-                if (intent.action == "android.intent.action.TIME_TICK") { // Check intent matches
-                    if (currHour != GregorianCalendar.  // Only perform updates at each hour
-                                    getInstance(Locale("en_US@calendar=english"))
-                                    .get(Calendar.HOUR_OF_DAY)) {
-
-                        Log.d(TAG, "Updating app's date information")
-
-                        // Update the app's current date data
-                        currYear = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                            .get(Calendar.YEAR)
-                        currMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                            .get(Calendar.MONTH)
-                        currDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                            .get(Calendar.DAY_OF_MONTH)
-                        currHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                            .get(Calendar.HOUR_OF_DAY)
-
-                        // Check and update crops for watering
-                        MainActivity().updateCropsTime()
-
-                    }
-
-                    // TODO integrate the following commented-out code elsewhere in the program.
-                    /*
-                    // Update current crop date
-                    thisCrop.updateCropDate()
-
-                    // Check if crop ready to harvest
-                    if (thisCrop.checkReadyToHarvest()) {
-                        thisCrop.setReadyToHarvest()
-                        // TODO notify user crop is ready to harvest
-                    }
-
-                    // Check if crop needs water
-                    thisCrop.updateNeedsWater()
-
-                    if (thisCrop.needsWater) {
-                        // TODO notify user crop needs to be watered
-                    }
-                    */
-                }
-            }
-        }
     }
 
     private fun loadDrawableResources() {
@@ -424,8 +379,7 @@ class MainActivity :
     /*****************************************************************************************
      * BEGIN CROP LIST OVERRIDES
      ****************************************************************************************/
-    override fun onDialogAccept(newCrop: Bundle) {
-
+    override fun onAddDialogAccept(newCrop: Bundle) {
 
         // Unpack bundle
         val nCrop = newCrop.get(NEW_CROP) as Crop
@@ -476,10 +430,33 @@ class MainActivity :
     /*****************************************************************************************
      * BEGIN CROP STATUS OVERRIDES
      ****************************************************************************************/
+
+    override fun onEditDialogAccept(editCropBundle: Bundle) {
+        // Unpack bundle
+        val editCrop: Crop = editCropBundle.get(EDIT_CROP) as Crop
+
+        // Update saved crop list
+        val i = mSavedCrops.indexOfFirst { c -> c.id == editCrop.id }
+        mSavedCrops[i] = editCrop
+
+        // Update crop in database
+        dbg.updateCrop(editCrop)
+    }
+
     override fun waterCrop(crop: Crop) {
         mSavedCrops[mSavedCrops.indexOf(crop)].water()
         dbg.updateCrop(crop)
         Log.d(TAG, "Crop watered.")
+    }
+
+    override fun editCrop(crop: Crop) {
+        Log.d(TAG, "Navigating to EditCropDialog...")
+        mNavController.navigate(
+            R.id.action_cropFragment_to_editCropDialog,
+            bundleOf(
+                Pair(EDIT_CROP, crop)
+            )
+        )
     }
 
     override fun removeCrop(crop: Crop) {

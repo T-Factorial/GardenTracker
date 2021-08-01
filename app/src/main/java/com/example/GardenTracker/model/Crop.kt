@@ -182,6 +182,10 @@ class Crop()
         return final
     }
 
+    fun setNewWaterHours(hours: ArrayList<Int>) {
+        waterHours = waterHoursToString(hours)
+    }
+
     fun waterHoursFromString(): ArrayList<Int> {
         val hours: ArrayList<Int> = ArrayList()
         var temp: String = ""

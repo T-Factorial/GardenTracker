@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:layout_margin="8dp"
     android:orientation="vertical"
-    android:padding="8dp"
-    tools:context=".AddCropDialog">
+    android:padding="8dp">
 
     <EditText
         android:id="@+id/crop_name_input"

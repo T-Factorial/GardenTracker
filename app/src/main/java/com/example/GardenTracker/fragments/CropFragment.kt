@@ -88,6 +88,7 @@ class CropFragment : Fragment() {
 
         // Get view buttons
         val waterButton: Button = view.findViewById(R.id.water_crop_button)
+        val editButton: Button = view.findViewById(R.id.edit_crop_button)
         val removeButton: Button = view.findViewById(R.id.remove_crop_button)
         val notesButton: Button = view.findViewById(R.id.crop_to_notes_button)
         val captureButton: Button = view.findViewById(R.id.goto_camera_button)
@@ -106,21 +107,25 @@ class CropFragment : Fragment() {
         harvestProgress.progress = mStatusCrop.harvestProgress()
 
         // Set button listeners
-        waterButton.setOnClickListener(View.OnClickListener {
+        waterButton.setOnClickListener {
             listener?.waterCrop(mStatusCrop)
-        })
+        }
 
-        removeButton.setOnClickListener(View.OnClickListener {
+        editButton.setOnClickListener {
+            listener?.editCrop(mStatusCrop)
+        }
+
+        removeButton.setOnClickListener {
             listener?.removeCrop(mStatusCrop)
-        })
+        }
 
-        notesButton.setOnClickListener(View.OnClickListener {
+        notesButton.setOnClickListener {
             listener?.goToNotes(mStatusCrop)
-        })
+        }
 
-        captureButton.setOnClickListener(View.OnClickListener {
+        captureButton.setOnClickListener {
             listener?.startCameraActivity()
-        })
+        }
 
         // Setup Memory RecyclerView
         mRecyclerView = view.findViewById(R.id.crop_memories)
@@ -210,6 +215,7 @@ class CropFragment : Fragment() {
     interface OnCropStatusListener {
         fun waterCrop(crop: Crop)
         fun removeCrop(crop: Crop)
+        fun editCrop(crop: Crop)
         fun goToNotes(crop: Crop)
         fun onMemorySelect(bm: Bitmap)
         fun startCameraActivity()

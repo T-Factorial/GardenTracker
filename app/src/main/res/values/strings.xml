@@ -6,6 +6,7 @@
     <string name="HeaderDescription">A floral greenhouse with rain falling on the windows</string>
     <string name="WelcomeMessage">Welcome back Hannah</string>
     <string name="NewCropDialogTitle">What are you planting?</string>
+    <string name="EditCropDialogTitle">Editing Crop: %1$s</string>
     <string name="PosButt">Add</string>
     <string name="NegButt">Cancel</string>
     <string name="DrawerOpen">Open</string>
