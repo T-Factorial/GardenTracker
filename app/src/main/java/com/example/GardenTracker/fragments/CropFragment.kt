@@ -147,7 +147,7 @@ class CropFragment : Fragment() {
                 if (data.extras != null) {
                     val extras = data.extras
                     if (extras?.get("data") != null) {
-                        Log.d(TAG, "Successfully retreived data.")
+                        Log.d(TAG, "Successfully retrieved data.")
                         val image : Bitmap = extras.get("data") as Bitmap
                         //mCropMemories.add(image)
                         listener?.saveNewMemory(mStatusCrop, image)
@@ -160,7 +160,7 @@ class CropFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as AppCompatActivity)?.supportActionBar?.title = mStatusCrop.name + " Status"
+        (activity as AppCompatActivity).supportActionBar?.title = mStatusCrop.name + " Status"
     }
 
     override fun onAttach(context: Context) {
@@ -168,7 +168,7 @@ class CropFragment : Fragment() {
         if (context is OnCropStatusListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnCropStatusListener")
+            throw RuntimeException("$context must implement OnCropStatusListener")
         }
     }
 
@@ -178,35 +178,33 @@ class CropFragment : Fragment() {
     }
 
     private fun hourToString(hour: Int): String {
-        var hourString: String
         when (hour) {
-            0 -> hourString = "12:00AM"
-            1 -> hourString = "1:00AM"
-            2 -> hourString = "2:00AM"
-            3 -> hourString = "3:00AM"
-            4 -> hourString = "4:00AM"
-            5 -> hourString = "5:00AM"
-            6 -> hourString = "6:00AM"
-            7 -> hourString = "7:00AM"
-            8 -> hourString = "8:00AM"
-            9 -> hourString = "9:00AM"
-            10 -> hourString = "10:00AM"
-            11 -> hourString = "11:00AM"
-            12 -> hourString = "12:00PM"
-            13 -> hourString = "1:00PM"
-            14 -> hourString = "2:00PM"
-            15 -> hourString = "3:00PM"
-            16 -> hourString = "4:00PM"
-            17 -> hourString = "5:00PM"
-            18 -> hourString = "6:00PM"
-            19 -> hourString = "7:00PM"
-            20 -> hourString = "8:00PM"
-            21 -> hourString = "9:00PM"
-            22 -> hourString = "10:00PM"
-            23 -> hourString = "11:00PM"
-            else -> hourString = ""
+            0 -> return "12:00AM"
+            1 -> return "1:00AM"
+            2 -> return "2:00AM"
+            3 -> return "3:00AM"
+            4 -> return "4:00AM"
+            5 -> return "5:00AM"
+            6 -> return "6:00AM"
+            7 -> return "7:00AM"
+            8 -> return "8:00AM"
+            9 -> return "9:00AM"
+            10 -> return "10:00AM"
+            11 -> return "11:00AM"
+            12 -> return "12:00PM"
+            13 -> return "1:00PM"
+            14 -> return "2:00PM"
+            15 -> return "3:00PM"
+            16 -> return "4:00PM"
+            17 -> return "5:00PM"
+            18 -> return "6:00PM"
+            19 -> return "7:00PM"
+            20 -> return "8:00PM"
+            21 -> return "9:00PM"
+            22 -> return "10:00PM"
+            23 -> return "11:00PM"
+            else -> return ""
         }
-        return hourString
     }
 
     interface OnCropStatusListener {
