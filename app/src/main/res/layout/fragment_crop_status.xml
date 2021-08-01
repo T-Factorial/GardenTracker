@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/growth_progress_label"
+                app:layout_constraintEnd_toStartOf="@id/water_status_label_crop"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_launcher_foreground" />
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:text="Water"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/water_times_label"
                 app:layout_constraintEnd_toStartOf="@id/water_status_crop"
                 app:layout_constraintStart_toEndOf="@+id/crop_type"
                 app:layout_constraintTop_toBottomOf="@id/growth_progress_label" />
@@ -86,10 +86,30 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/watering_times"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/water_status_label_crop"
                 app:layout_constraintTop_toBottomOf="@id/time_to_harvest" />
+
+            <TextView
+                android:id="@+id/water_times_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Watering Times:"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/crop_type"
+                app:layout_constraintTop_toBottomOf="@id/water_status_label_crop" />
+
+            <TextView
+                android:id="@+id/watering_times"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/water_times_label"
+                app:layout_constraintTop_toBottomOf="@id/water_status_crop" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

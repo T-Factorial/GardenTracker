@@ -24,9 +24,6 @@
             android:id="@+id/action_homeFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_helpFragment"
-            app:destination="@id/helpFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_cropNotesFragment"
             app:destination="@id/cropNotesFragment" />
     </fragment>
@@ -55,17 +52,12 @@
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
     <fragment
-        android:id="@+id/helpFragment"
-        android:name="com.example.GardenTracker.fragments.HelpFragment"
-        android:label="fragment_help"
-        tools:layout="@layout/fragment_help" />
-    <fragment
         android:id="@+id/addCropDialog"
         android:name="com.example.GardenTracker.AddCropDialog"
         android:label="fragment_add_crop_dialog"
         tools:layout="@layout/fragment_add_crop_dialog" >
         <action
-            android:id="@+id/action_addCropDialog_to_cropFragment"
+            android:id="@+id/action_addCropDialog_to_cropListFragment"
             app:destination="@id/cropListFragment" />
     </fragment>
     <fragment

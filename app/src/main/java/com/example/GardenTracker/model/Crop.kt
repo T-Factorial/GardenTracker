@@ -184,10 +184,14 @@ class Crop()
 
     fun waterHoursFromString(): ArrayList<Int> {
         val hours: ArrayList<Int> = ArrayList()
+        var temp: String = ""
         waterHours.forEach {
             if (it != '|') {
                 if (it != '`') {
-                    hours.add(it.digitToInt())
+                    temp = "$temp$it"
+                } else {
+                    hours.add(temp.toInt())
+                    temp = ""
                 }
             }
         }

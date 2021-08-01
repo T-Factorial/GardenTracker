@@ -27,6 +27,7 @@ import com.example.GardenTracker.fragments.NotesFragment
 import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.model.Note
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -167,8 +168,9 @@ class MainActivity :
     private fun updateCropsTime() {
         Log.d(TAG, "Updating the water status of all crops")
         mSavedCrops.forEach {
-            it.updateNeedsWater(currHour)
+                it.updateNeedsWater(currHour)
         }
+
     }
 
     // This Broadcast Receiver will be registered so that
@@ -200,6 +202,7 @@ class MainActivity :
 
                         // Check and update crops for watering
                         MainActivity().updateCropsTime()
+
                     }
 
                     // TODO integrate the following commented-out code elsewhere in the program.
@@ -410,12 +413,6 @@ class MainActivity :
                     .navigate(R.id.action_homeFragment_to_settingsFragment)
                 mDrawerLayout.closeDrawer(GravityCompat.START)
             }
-            R.id.help_item ->  {
-                onSupportNavigateUp()
-                mNavController
-                .navigate(R.id.action_homeFragment_to_helpFragment)
-                mDrawerLayout.closeDrawer(GravityCompat.START)
-            }
             else -> false
         }
         return true
@@ -437,14 +434,17 @@ class MainActivity :
         Log.d(TAG, "New Crop received.")
 
         // Update the list with new crop (re-navigate to the frag again)
-        onSupportNavigateUp()
+        // onSupportNavigateUp()
+        /*
         mNavController.navigate(
-            R.id.action_homeFragment_to_cropFragment,
+            R.id.action_addCropDialog_to_cropListFragment,
             bundleOf(
+                Pair(ARG_COLUMN_COUNT, 1),
                 Pair(ARG_CROP_LIST, mSavedCrops),
                 Pair(ARG_DRAWABLES, mDrawableResources)
             )
         )
+         */
 
         // Save the new crops data
         dbg.insertCrop(nCrop)
