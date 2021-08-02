@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.example.GardenTracker.fragments.CropFragment
 import java.util.*
 
 // This Broadcast Receiver will be registered so that
@@ -17,6 +18,13 @@ class DateTimeReceiver(timeData: MainActivity.DateTimeHolder) : BroadcastReceive
     private var time: MainActivity.DateTimeHolder = timeData
 
     override fun onReceive(context: Context?, intent: Intent?) {
+
+        if (context is BroadcastReceiverListener) {
+            listener = context
+        } else {
+            throw RuntimeException("$context must implement BroadcastReceiverListener")
+        }
+
         Log.d(TAG, "Received an intent: ${intent.toString()}")
         if (intent != null) {
             if (intent.action == "android.intent.action.TIME_TICK") { // Check intent matches
@@ -37,7 +45,7 @@ class DateTimeReceiver(timeData: MainActivity.DateTimeHolder) : BroadcastReceive
                         .get(Calendar.HOUR_OF_DAY)
 
                     // Check and update crops for watering
-
+                    listener?.timeUpdateCrops()
                 }
 
                 // TODO integrate the following commented-out code elsewhere in the program.
@@ -60,6 +68,8 @@ class DateTimeReceiver(timeData: MainActivity.DateTimeHolder) : BroadcastReceive
                 */
             }
         }
+
+        listener = null
     }
 
     interface BroadcastReceiverListener {
