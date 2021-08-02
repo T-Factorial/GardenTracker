@@ -18,11 +18,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.GardenTracker.CropDialog
 import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.adapters.MyMemoryAdapter
 import com.example.GardenTracker.R
 
 private const val STATUS_CROP = "status_crop"
+private const val EDIT_CROP = "edit-crop"
 private const val ARG_DRAWABLES = "drawable-resources"
 private const val CROP_MEMORIES = "crop-memories"
 private const val CAMERA_REQUEST = 0
@@ -112,7 +114,14 @@ class CropFragment : Fragment() {
         }
 
         editButton.setOnClickListener {
-            listener?.editCrop(mStatusCrop)
+           // listener?.editCrop(mStatusCrop)
+            fragmentManager?.let { it ->
+                val dialog = CropDialog()
+                val bundle = Bundle()
+                bundle.putSerializable(EDIT_CROP, mStatusCrop)
+                dialog.arguments = bundle
+                dialog.show(it,"Edit crop")
+            }
         }
 
         removeButton.setOnClickListener {

@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.GardenTracker.AddCropDialog
+import com.example.GardenTracker.CropDialog
 import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.adapters.MyCropAdapter
 import com.example.GardenTracker.R
@@ -76,7 +76,7 @@ class CropListFragment : Fragment() {
         addCropBtn.setOnClickListener() {
             // Pop-up a dialog
             fragmentManager?.let { it ->
-                AddCropDialog().show(it,"Add crop")
+                CropDialog().show(it,"Add crop")
             }
         }
     }
@@ -102,7 +102,6 @@ class CropListFragment : Fragment() {
 
     interface OnCropFragmentInteractionListener {
         fun onCropListInteraction(item: Crop)
-        fun onAddCropBtnPressed()
     }
 
     companion object {

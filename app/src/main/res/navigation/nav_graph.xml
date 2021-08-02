@@ -53,13 +53,9 @@
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/addCropDialog"
-        android:name="com.example.GardenTracker.AddCropDialog"
+        android:name="com.example.GardenTracker.CropDialog"
         android:label="fragment_add_crop_dialog"
-        tools:layout="@layout/fragment_crop_dialog" >
-        <action
-            android:id="@+id/action_addCropDialog_to_cropListFragment"
-            app:destination="@id/cropListFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_crop_dialog" />
     <fragment
         android:id="@+id/cropFragment"
         android:name="com.example.GardenTracker.fragments.CropFragment"
@@ -76,8 +72,8 @@
             android:id="@+id/action_cropFragment_to_cropListFragment"
             app:destination="@id/cropListFragment" />
         <action
-            android:id="@+id/action_cropFragment_to_editCropDialog"
-            app:destination="@id/editCropDialog" />
+            android:id="@+id/action_cropFragment_to_addCropDialog2"
+            app:destination="@id/addCropDialog" />
     </fragment>
     <fragment
         android:id="@+id/memoryDisplayFragment"
@@ -107,12 +103,5 @@
             android:id="@+id/action_cropNotesFragment_to_noteFragment"
             app:destination="@id/noteFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/editCropDialog"
-        android:name="com.example.GardenTracker.EditCropDialog"
-        android:label="EditCropDialog" >
-        <action
-            android:id="@+id/action_editCropDialog_to_cropFragment"
-            app:destination="@id/cropFragment" />
-    </fragment>
+
 </navigation>

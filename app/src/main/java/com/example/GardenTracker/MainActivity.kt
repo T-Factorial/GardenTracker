@@ -56,8 +56,7 @@ class MainActivity :
     DateTimeReceiver.BroadcastReceiverListener,
     NavigationView.OnNavigationItemSelectedListener,
     CropListFragment.OnCropFragmentInteractionListener,
-    AddCropDialog.OnAddCropDialogInteraction,
-    EditCropDialog.OnEditCropDialogInteraction,
+    CropDialog.OnAddCropDialogInteraction,
     CropFragment.OnCropStatusListener,
     NotesFragment.OnNoteListInteractionListener,
     NoteFragment.OnNoteInteractionListener {
@@ -150,10 +149,11 @@ class MainActivity :
         super.onStop()
 
         // Unregister DateTimeReceiver
+        /*
         Log.d(TAG, "onStop unregistering broadcast receiver...")
         if (receiver != null) {
             unregisterReceiver(receiver)
-        }
+        }*/
 
         Log.d(TAG,"onStop closing databases...")
         // Close databases
@@ -379,29 +379,14 @@ class MainActivity :
     /*****************************************************************************************
      * BEGIN CROP LIST OVERRIDES
      ****************************************************************************************/
-    override fun onAddDialogAccept(newCrop: Bundle) {
-
-        // Unpack bundle
-        val nCrop = newCrop.get(NEW_CROP) as Crop
-        mSavedCrops.add(nCrop)
+    override fun onAddDialogAccept(newCrop: Crop) {
+        // Add to saved crops
+        mSavedCrops.add(newCrop)
 
         Log.d(TAG, "New Crop received.")
 
-        // Update the list with new crop (re-navigate to the frag again)
-        // onSupportNavigateUp()
-        /*
-        mNavController.navigate(
-            R.id.action_addCropDialog_to_cropListFragment,
-            bundleOf(
-                Pair(ARG_COLUMN_COUNT, 1),
-                Pair(ARG_CROP_LIST, mSavedCrops),
-                Pair(ARG_DRAWABLES, mDrawableResources)
-            )
-        )
-         */
-
         // Save the new crops data
-        dbg.insertCrop(nCrop)
+        dbg.insertCrop(newCrop)
 
     }
 
@@ -420,9 +405,6 @@ class MainActivity :
         )
     }
 
-    override fun onAddCropBtnPressed() {
-        mNavController.navigate(R.id.action_cropFragment_to_addCropDialog)
-    }
     /*****************************************************************************************
      * END CROP LIST OVERRIDES
      ****************************************************************************************/
@@ -431,10 +413,7 @@ class MainActivity :
      * BEGIN CROP STATUS OVERRIDES
      ****************************************************************************************/
 
-    override fun onEditDialogAccept(editCropBundle: Bundle) {
-        // Unpack bundle
-        val editCrop: Crop = editCropBundle.get(EDIT_CROP) as Crop
-
+    override fun onEditDialogAccept(editCrop: Crop) {
         // Update saved crop list
         val i = mSavedCrops.indexOfFirst { c -> c.id == editCrop.id }
         mSavedCrops[i] = editCrop
@@ -452,7 +431,7 @@ class MainActivity :
     override fun editCrop(crop: Crop) {
         Log.d(TAG, "Navigating to EditCropDialog...")
         mNavController.navigate(
-            R.id.action_cropFragment_to_editCropDialog,
+            R.id.action_cropFragment_to_addCropDialog2,
             bundleOf(
                 Pair(EDIT_CROP, crop)
             )

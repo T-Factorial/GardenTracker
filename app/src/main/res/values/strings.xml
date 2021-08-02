@@ -8,6 +8,7 @@
     <string name="NewCropDialogTitle">What are you planting?</string>
     <string name="EditCropDialogTitle">Editing Crop: %1$s</string>
     <string name="PosButt">Add</string>
+    <string name="EdButt">Save</string>
     <string name="NegButt">Cancel</string>
     <string name="DrawerOpen">Open</string>
     <string name="DrawerClose">Close</string>

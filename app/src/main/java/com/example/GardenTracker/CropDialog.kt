@@ -6,36 +6,25 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.example.GardenTracker.model.Crop
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+private const val NEW_CROP = "new-crop"
 private const val EDIT_CROP = "edit-crop"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [EditCropDialog.newInstance] factory method to
- * create an instance of this fragment.
- */
-class EditCropDialog : DialogFragment() {
+class CropDialog : DialogFragment() {
 
-    private lateinit var mEditCrop: Crop
+    private var listener: OnAddCropDialogInteraction? = null
 
-    private var listener: OnEditCropDialogInteraction? = null
+    private val TAG = "ADD_CROP_DIALOG"
 
-    private val TAG = "EDIT_CROP_DIALOG"
+    private var mEditCrop: Crop? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-
-            Log.d(TAG, "onCreateDialog running...")
+        return activity?.let { it ->
 
             arguments?.let {
                 mEditCrop = it.getSerializable(EDIT_CROP) as Crop
@@ -55,23 +44,60 @@ class EditCropDialog : DialogFragment() {
 
             var isTouched: Boolean = false
 
-            val waterHours: ArrayList<Int> = ArrayList()
+            var waterHours: ArrayList<Int> = ArrayList()
 
-            // Fill in dialog w/ current data
-            nameInput.setText(mEditCrop.name)
-            when (mEditCrop.type) {
-                "Flower" -> typeInput.setSelection(0)
-                "Herb" -> typeInput.setSelection(1)
-                "Vegetable" -> typeInput.setSelection(2)
-                "Fruit" -> typeInput.setSelection(3)
-            }
-            harvestInput.setText(mEditCrop.growthTime)
-            mEditCrop.waterHoursFromString().forEach {
-                waterLabel.text = "${waterLabel.text}\n$it"
-            }
+            var dialogTitle = ""
+            var posBtnMsg = ""
 
-            if (waterLabel.text != "") {
-                undoButton.visibility = View.VISIBLE
+            if (mEditCrop != null) {
+                // Fill in dialog w/ current data
+                nameInput.setText(mEditCrop!!.name)
+                when (mEditCrop!!.type) {
+                    "Flower" -> typeInput.setSelection(0)
+                    "Herb" -> typeInput.setSelection(1)
+                    "Vegetable" -> typeInput.setSelection(2)
+                    "Fruit" -> typeInput.setSelection(3)
+                }
+                harvestInput.setText("${mEditCrop!!.growthTime}")
+                waterHours = mEditCrop!!.waterHoursFromString()
+                waterHours.forEach {
+                    when (it) {
+                        0 -> waterLabel.text = "${waterLabel.text}\n12:00AM"
+                        1 -> waterLabel.text = "${waterLabel.text}\n1:00AM"
+                        2 -> waterLabel.text = "${waterLabel.text}\n2:00AM"
+                        3 -> waterLabel.text = "${waterLabel.text}\n3:00AM"
+                        4 -> waterLabel.text = "${waterLabel.text}\n4:00AM"
+                        5 -> waterLabel.text = "${waterLabel.text}\n5:00AM"
+                        6 -> waterLabel.text = "${waterLabel.text}\n6:00AM"
+                        7 -> waterLabel.text = "${waterLabel.text}\n7:00AM"
+                        8 -> waterLabel.text = "${waterLabel.text}\n8:00AM"
+                        9 -> waterLabel.text = "${waterLabel.text}\n9:00AM"
+                        10 -> waterLabel.text = "${waterLabel.text}\n10:00AM"
+                        11 -> waterLabel.text = "${waterLabel.text}\n11:00AM"
+                        12 -> waterLabel.text = "${waterLabel.text}\n12:00PM"
+                        13 -> waterLabel.text = "${waterLabel.text}\n1:00PM"
+                        14 -> waterLabel.text = "${waterLabel.text}\n2:00PM"
+                        15 -> waterLabel.text = "${waterLabel.text}\n3:00PM"
+                        16 -> waterLabel.text = "${waterLabel.text}\n4:00PM"
+                        17 -> waterLabel.text = "${waterLabel.text}\n5:00PM"
+                        18 -> waterLabel.text = "${waterLabel.text}\n6:00PM"
+                        19 -> waterLabel.text = "${waterLabel.text}\n7:00PM"
+                        20 -> waterLabel.text = "${waterLabel.text}\n8:00PM"
+                        21 -> waterLabel.text = "${waterLabel.text}\n9:00PM"
+                        22 -> waterLabel.text = "${waterLabel.text}\n10:00PM"
+                        23 -> waterLabel.text = "${waterLabel.text}\n11:00PM"
+                    }
+                }
+
+                if (waterLabel.text != "") {
+                    undoButton.visibility = View.VISIBLE
+                }
+
+                dialogTitle = getString(R.string.EditCropDialogTitle, mEditCrop!!.name)
+                posBtnMsg = getString(R.string.EdButt)
+            } else {
+                dialogTitle = getString(R.string.NewCropDialogTitle)
+                posBtnMsg = getString(R.string.PosButt)
             }
 
             // Set click listener for undo add hour button
@@ -143,9 +169,9 @@ class EditCropDialog : DialogFragment() {
 
 
             // Build dialog
-            builder.setMessage(getString(R.string.EditCropDialogTitle, mEditCrop.name))
+            builder.setMessage(dialogTitle)
                 .setView(view)
-                .setPositiveButton(R.string.PosButt,
+                .setPositiveButton(posBtnMsg,
                     DialogInterface.OnClickListener { dialog, id ->
                         var err = false
                         val name = nameInput.text.toString()
@@ -182,18 +208,17 @@ class EditCropDialog : DialogFragment() {
                             ).show()
                         }
                         if (!err) {
-                            /*val newCrop = Crop(
-                                name, type,
-                                growth.toString().toInt(), waterHours
-                            )*/
-                            mEditCrop.name = name
-                            mEditCrop.type = type
-                            mEditCrop.growthTime = growth.toString().toInt()
-                            mEditCrop.setNewWaterHours(waterHours)
-                            val editCropData = bundleOf(
-                                Pair(EDIT_CROP, mEditCrop)
-                            )
-                            listener?.onEditDialogAccept(editCropData)
+                            if (mEditCrop != null) {
+                                mEditCrop!!.name = name
+                                mEditCrop!!.type = type
+                                mEditCrop!!.growthTime = growth.toString().toInt()
+                                mEditCrop!!.setNewWaterHours(waterHours)
+                                listener?.onEditDialogAccept(mEditCrop!!)
+                            } else {
+                                listener?.onAddDialogAccept(Crop(name, type,
+                                    growth.toString().toInt(), waterHours)
+                                )
+                            }
                         }
                     })
                 .setNegativeButton(R.string.NegButt,
@@ -208,10 +233,10 @@ class EditCropDialog : DialogFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnEditCropDialogInteraction) {
+        if (context is OnAddCropDialogInteraction) {
             listener = context
         } else {
-            throw RuntimeException("$context must implement OnEditCropDialogInteraction")
+            throw RuntimeException("$context must implement OnAddCropDialogInteraction")
         }
     }
 
@@ -220,26 +245,8 @@ class EditCropDialog : DialogFragment() {
         listener = null
     }
 
-    interface OnEditCropDialogInteraction {
-        fun onEditDialogAccept(editCropBundle: Bundle)
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param editCrop Crop being edited
-         *
-         * @return A new instance of fragment EditCropDialog.
-         */
-
-        @JvmStatic
-        fun newInstance(editCrop: Crop) =
-            EditCropDialog().apply {
-                arguments = Bundle().apply {
-                    putSerializable(EDIT_CROP, editCrop)
-                }
-            }
+    interface OnAddCropDialogInteraction {
+        fun onAddDialogAccept(newCrop: Crop)
+        fun onEditDialogAccept(editCrop: Crop)
     }
 }
