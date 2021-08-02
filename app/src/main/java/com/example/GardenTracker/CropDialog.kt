@@ -45,6 +45,12 @@ class CropDialog : DialogFragment() {
             var isTouched: Boolean = false
 
             var waterHours: ArrayList<Int> = ArrayList()
+            val hoursList: ArrayList<String> = resources
+                .getStringArray(R.array.water_hours_spinner_list)
+                .toCollection(ArrayList())
+            val spinnerAdapter = context?.let { cntxt ->
+                ArrayAdapter<String>(cntxt, R.layout.support_simple_spinner_dropdown_item, hoursList) }
+            waterInput.adapter = spinnerAdapter
 
             var dialogTitle = ""
             var posBtnMsg = ""
@@ -61,32 +67,7 @@ class CropDialog : DialogFragment() {
                 harvestInput.setText("${mEditCrop!!.growthTime}")
                 waterHours = mEditCrop!!.waterHoursFromString()
                 waterHours.forEach {
-                    when (it) {
-                        0 -> waterLabel.text = "${waterLabel.text}\n12:00AM"
-                        1 -> waterLabel.text = "${waterLabel.text}\n1:00AM"
-                        2 -> waterLabel.text = "${waterLabel.text}\n2:00AM"
-                        3 -> waterLabel.text = "${waterLabel.text}\n3:00AM"
-                        4 -> waterLabel.text = "${waterLabel.text}\n4:00AM"
-                        5 -> waterLabel.text = "${waterLabel.text}\n5:00AM"
-                        6 -> waterLabel.text = "${waterLabel.text}\n6:00AM"
-                        7 -> waterLabel.text = "${waterLabel.text}\n7:00AM"
-                        8 -> waterLabel.text = "${waterLabel.text}\n8:00AM"
-                        9 -> waterLabel.text = "${waterLabel.text}\n9:00AM"
-                        10 -> waterLabel.text = "${waterLabel.text}\n10:00AM"
-                        11 -> waterLabel.text = "${waterLabel.text}\n11:00AM"
-                        12 -> waterLabel.text = "${waterLabel.text}\n12:00PM"
-                        13 -> waterLabel.text = "${waterLabel.text}\n1:00PM"
-                        14 -> waterLabel.text = "${waterLabel.text}\n2:00PM"
-                        15 -> waterLabel.text = "${waterLabel.text}\n3:00PM"
-                        16 -> waterLabel.text = "${waterLabel.text}\n4:00PM"
-                        17 -> waterLabel.text = "${waterLabel.text}\n5:00PM"
-                        18 -> waterLabel.text = "${waterLabel.text}\n6:00PM"
-                        19 -> waterLabel.text = "${waterLabel.text}\n7:00PM"
-                        20 -> waterLabel.text = "${waterLabel.text}\n8:00PM"
-                        21 -> waterLabel.text = "${waterLabel.text}\n9:00PM"
-                        22 -> waterLabel.text = "${waterLabel.text}\n10:00PM"
-                        23 -> waterLabel.text = "${waterLabel.text}\n11:00PM"
-                    }
+                    waterLabel.text = "${waterLabel.text}\n${intToTime(it)}"
                 }
 
                 if (waterLabel.text != "") {
@@ -103,6 +84,8 @@ class CropDialog : DialogFragment() {
             // Set click listener for undo add hour button
             undoButton.setOnClickListener {
                 if (0 < waterHours.size) {
+                    hoursList.add(intToTime(waterHours.last()))
+                    spinnerAdapter?.notifyDataSetChanged()
                     waterHours.removeLast()
                     waterLabel.text = waterLabel.text.dropLastWhile { c -> c != '\n' }
                     waterLabel.text = waterLabel.text.dropLast(1)
@@ -132,32 +115,9 @@ class CropDialog : DialogFragment() {
                         Log.d(TAG, "Spinner item ${parent.getItemAtPosition(position)} selected.")
                         val selectedTime = parent.getItemAtPosition(position).toString()
                         waterLabel.text = "${waterLabel.text}\n$selectedTime"
-                        when (selectedTime) {
-                            parent.getItemAtPosition(0) -> waterHours.add(0)
-                            parent.getItemAtPosition(1) -> waterHours.add(1)
-                            parent.getItemAtPosition(2) -> waterHours.add(2)
-                            parent.getItemAtPosition(3) -> waterHours.add(3)
-                            parent.getItemAtPosition(4) -> waterHours.add(4)
-                            parent.getItemAtPosition(5) -> waterHours.add(5)
-                            parent.getItemAtPosition(6) -> waterHours.add(6)
-                            parent.getItemAtPosition(7) -> waterHours.add(7)
-                            parent.getItemAtPosition(8) -> waterHours.add(8)
-                            parent.getItemAtPosition(9) -> waterHours.add(9)
-                            parent.getItemAtPosition(10) -> waterHours.add(10)
-                            parent.getItemAtPosition(11) -> waterHours.add(11)
-                            parent.getItemAtPosition(12) -> waterHours.add(12)
-                            parent.getItemAtPosition(13) -> waterHours.add(13)
-                            parent.getItemAtPosition(14) -> waterHours.add(14)
-                            parent.getItemAtPosition(15) -> waterHours.add(15)
-                            parent.getItemAtPosition(16) -> waterHours.add(16)
-                            parent.getItemAtPosition(17) -> waterHours.add(17)
-                            parent.getItemAtPosition(18) -> waterHours.add(18)
-                            parent.getItemAtPosition(19) -> waterHours.add(19)
-                            parent.getItemAtPosition(20) -> waterHours.add(20)
-                            parent.getItemAtPosition(21) -> waterHours.add(21)
-                            parent.getItemAtPosition(22) -> waterHours.add(22)
-                            parent.getItemAtPosition(23) -> waterHours.add(23)
-                        }
+                        waterHours.add(position)
+                        hoursList.removeAt(position)
+                        spinnerAdapter?.notifyDataSetChanged()
                     }
                     undoButton.visibility = View.VISIBLE
                 }
@@ -243,6 +203,36 @@ class CropDialog : DialogFragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+    }
+
+    private fun intToTime(time: Int): String {
+        when (time) {
+            0 ->  return "12:00AM"
+            1 ->  return "1:00AM"
+            2 ->  return "2:00AM"
+            3 ->  return "3:00AM"
+            4 ->  return "4:00AM"
+            5 ->  return "5:00AM"
+            6 ->  return "6:00AM"
+            7 ->  return "7:00AM"
+            8 ->  return "8:00AM"
+            9 ->  return "9:00AM"
+            10 ->  return "10:00AM"
+            11 ->  return "11:00AM"
+            12 ->  return "12:00PM"
+            13 ->  return "1:00PM"
+            14 ->  return "2:00PM"
+            15 ->  return "3:00PM"
+            16 ->  return "4:00PM"
+            17 ->  return "5:00PM"
+            18 ->  return "6:00PM"
+            19 ->  return "7:00PM"
+            20 ->  return "8:00PM"
+            21 ->  return "9:00PM"
+            22 ->  return "10:00PM"
+            23 ->  return "11:00PM"
+            else -> return ""
+        }
     }
 
     interface OnAddCropDialogInteraction {
