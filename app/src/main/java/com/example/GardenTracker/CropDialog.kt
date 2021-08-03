@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,7 +13,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.example.GardenTracker.model.Crop
 
-private const val NEW_CROP = "new-crop"
 private const val EDIT_CROP = "edit-crop"
 
 class CropDialog : DialogFragment() {
@@ -42,15 +42,9 @@ class CropDialog : DialogFragment() {
             val waterInput: Spinner = view.findViewById(R.id.water_hours_input)
             val undoButton: Button = view.findViewById(R.id.undo_hour_button)
 
-            var isTouched: Boolean = false
+            var isTouched = false
 
             var waterHours: ArrayList<Int> = ArrayList()
-            val hoursList: ArrayList<String> = resources
-                .getStringArray(R.array.water_hours_spinner_list)
-                .toCollection(ArrayList())
-            val spinnerAdapter = context?.let { cntxt ->
-                ArrayAdapter<String>(cntxt, R.layout.support_simple_spinner_dropdown_item, hoursList) }
-            waterInput.adapter = spinnerAdapter
 
             var dialogTitle = ""
             var posBtnMsg = ""
@@ -59,10 +53,10 @@ class CropDialog : DialogFragment() {
                 // Fill in dialog w/ current data
                 nameInput.setText(mEditCrop!!.name)
                 when (mEditCrop!!.type) {
-                    "Flower" -> typeInput.setSelection(0)
-                    "Herb" -> typeInput.setSelection(1)
-                    "Vegetable" -> typeInput.setSelection(2)
-                    "Fruit" -> typeInput.setSelection(3)
+                    "Flower" -> typeInput.setSelection(1)
+                    "Herb" -> typeInput.setSelection(2)
+                    "Vegetable" -> typeInput.setSelection(3)
+                    "Fruit" -> typeInput.setSelection(4)
                 }
                 harvestInput.setText("${mEditCrop!!.growthTime}")
                 waterHours = mEditCrop!!.waterHoursFromString()
@@ -84,8 +78,6 @@ class CropDialog : DialogFragment() {
             // Set click listener for undo add hour button
             undoButton.setOnClickListener {
                 if (0 < waterHours.size) {
-                    hoursList.add(intToTime(waterHours.last()))
-                    spinnerAdapter?.notifyDataSetChanged()
                     waterHours.removeLast()
                     waterLabel.text = waterLabel.text.dropLastWhile { c -> c != '\n' }
                     waterLabel.text = waterLabel.text.dropLast(1)
@@ -110,16 +102,26 @@ class CropDialog : DialogFragment() {
                     position: Int,
                     id: Long
                 ) {
-                    if (!isTouched) return
-                    if (parent != null) {
-                        Log.d(TAG, "Spinner item ${parent.getItemAtPosition(position)} selected.")
-                        val selectedTime = parent.getItemAtPosition(position).toString()
-                        waterLabel.text = "${waterLabel.text}\n$selectedTime"
-                        waterHours.add(position)
-                        hoursList.removeAt(position)
-                        spinnerAdapter?.notifyDataSetChanged()
+                    if (isTouched) {
+                        if (parent != null) {
+                            if (position != 0) {
+                                Log.d(TAG,
+                                    "Spinner item ${parent.getItemAtPosition(position)} selected.")
+                                if (!waterHours.contains(position)) {
+                                    val selectedTime = parent.getItemAtPosition(position)
+                                    waterLabel.text = "${waterLabel.text}\n$selectedTime"
+                                    waterHours.add(position)
+
+
+                                    if (undoButton.visibility != View.VISIBLE) {
+                                        undoButton.visibility = View.VISIBLE
+                                    }
+                                }
+                            }
+                            waterInput.setSelection(0)
+                        }
                     }
-                    undoButton.visibility = View.VISIBLE
+                    isTouched = false
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -145,7 +147,7 @@ class CropDialog : DialogFragment() {
                                 "You did not enter a crop name.", Toast.LENGTH_SHORT
                             ).show()
                         }
-                        if (type == "") {
+                        if (typeInput.selectedItemPosition == 0) {
                             err = true
                             Toast.makeText(
                                 context,

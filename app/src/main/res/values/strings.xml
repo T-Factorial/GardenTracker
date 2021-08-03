@@ -21,6 +21,7 @@
     <string name="CropToNotes">Go to Notes</string>
 
     <string-array name="crop_type_spinner_list">
+        <item>Select Type from dropdown:</item>
         <item>Flower</item>
         <item>Herb</item>
         <item>Vegetable</item>
@@ -28,6 +29,7 @@
     </string-array>
 
     <string-array name="water_hours_spinner_list">
+        <item>Add Watering Hours from dropdown:</item>
         <item>12:00 AM</item>
         <item>1:00 AM</item>
         <item>2:00 AM</item>
