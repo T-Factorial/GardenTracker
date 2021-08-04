@@ -110,8 +110,7 @@ class CropDialog : DialogFragment() {
                                 if (!waterHours.contains(position)) {
                                     val selectedTime = parent.getItemAtPosition(position)
                                     waterLabel.text = "${waterLabel.text}\n$selectedTime"
-                                    waterHours.add(position)
-
+                                    waterHours.add(position - 1)
 
                                     if (undoButton.visibility != View.VISIBLE) {
                                         undoButton.visibility = View.VISIBLE

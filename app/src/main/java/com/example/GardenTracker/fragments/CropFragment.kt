@@ -47,7 +47,7 @@ class CropFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             Log.d(TAG, "Unpacking savedInstanceState arguments.")
-            mStatusCrop = (it.getSerializable(STATUS_CROP) as ArrayList<Crop>).get(0)
+            mStatusCrop = it.getSerializable(STATUS_CROP) as Crop
             mDrawables = it.getSerializable(ARG_DRAWABLES) as ArrayList<Drawable>
             mCropMemories = it.getSerializable(CROP_MEMORIES) as ArrayList<Bitmap>
         }

@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -33,8 +34,6 @@ import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
 
-private const val ARG_COLUMN_COUNT = "column-count"
-private const val NEW_CROP = "new-crop"
 private const val EDIT_CROP = "edit-crop"
 private const val ARG_CROP_LIST = "crop-list"
 private const val ARG_DRAWABLES = "drawable-resources"
@@ -42,10 +41,7 @@ private const val CROP_NAME = "crop-name"
 private const val CROP_TYPE = "crop-type"
 private const val CROP_NOTES = "crop-notes"
 private const val NOTE = "note"
-private const val NOTE_CONTENT = "note-content"
 private const val CROP_MEMORIES = "crop-memories"
-private const val GROWTH_TIME = "growth-time"
-private const val WATER_HOURS = "water-freq"
 private const val STATUS_CROP = "status_crop"
 private const val DISPLAY_MEMORY = "display-memory"
 private const val CAMERA_REQUEST = 0
@@ -107,7 +103,11 @@ class MainActivity :
         if (savedInstanceState != null) {
             if (!savedInstanceState.isEmpty) {
                 Log.d(TAG, "Getting crops from savedInstanceState")
-                mSavedCrops = savedInstanceState.get(ARG_CROP_LIST) as ArrayList<Crop>
+                if (savedInstanceState.get(ARG_CROP_LIST) is ArrayList<*>) {
+                    if ((savedInstanceState.get(ARG_CROP_LIST) as ArrayList<*>)[0] is Crop) {
+                        mSavedCrops = savedInstanceState.get(ARG_CROP_LIST) as ArrayList<Crop>
+                    }
+                }
             }
         } else {
             mSavedCrops = ArrayList<Crop>()
@@ -115,7 +115,7 @@ class MainActivity :
 
         if (dbg.cropDataToLoad()) {
             Log.d(TAG, "Loading crops from database...")
-            mSavedCrops = dbg.getAllCrops() as ArrayList<Crop>
+            mSavedCrops = dbg.getAllCrops()
         } else {
             Log.d(TAG, "No crops to load.")
             mSavedCrops = ArrayList()
@@ -262,7 +262,7 @@ class MainActivity :
 
     }
 
-    fun loadBitmaps(crop: Crop) : java.util.ArrayList<Bitmap> {
+    fun loadBitmaps(crop: Crop) : ArrayList<Bitmap> {
 
         val files : List<String> = crop.memoriesFromString()
         val bmps = java.util.ArrayList<Bitmap>()
@@ -391,16 +391,13 @@ class MainActivity :
     }
 
     override fun onCropListInteraction(item: Crop) {
-        val contain = ArrayList<Crop>()
-        contain.add(item)
-        val memories = loadBitmaps(item)
         Log.d(TAG, "Navigating to Crop Status fragment.")
         mNavController.navigate(
             R.id.action_cropListFragment_to_cropFragment,
             bundleOf(
-                Pair(STATUS_CROP, contain),
+                Pair(STATUS_CROP, item),
                 Pair(ARG_DRAWABLES, mDrawableResources),
-                Pair(CROP_MEMORIES, memories)
+                Pair(CROP_MEMORIES, loadBitmaps(item))
             )
         )
     }
@@ -414,18 +411,36 @@ class MainActivity :
      ****************************************************************************************/
 
     override fun onEditDialogAccept(editCrop: Crop) {
-        // Update saved crop list
-        val i = mSavedCrops.indexOfFirst { c -> c.id == editCrop.id }
-        mSavedCrops[i] = editCrop
-
         // Update crop in database
         dbg.updateCrop(editCrop)
+
+        // Renavigate with updated crop data
+        onSupportNavigateUp()
+        mNavController.navigate(
+            R.id.action_cropListFragment_to_cropFragment,
+            bundleOf(
+                Pair(STATUS_CROP, editCrop),
+                Pair(ARG_DRAWABLES, mDrawableResources),
+                Pair(CROP_MEMORIES, loadBitmaps(editCrop))
+            )
+        )
     }
 
     override fun waterCrop(crop: Crop) {
-        mSavedCrops[mSavedCrops.indexOf(crop)].water()
-        dbg.updateCrop(crop)
-        Log.d(TAG, "Crop watered.")
+        if (crop.needsWater) {
+            crop.water()
+            dbg.updateCrop(crop)
+            Log.d(TAG, "Crop watered.")
+            Toast.makeText(
+                this,
+                "${crop.name} watered.", Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            Toast.makeText(
+                this,
+                "${crop.name} does not currently need watering.", Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     override fun editCrop(crop: Crop) {
@@ -492,8 +507,6 @@ class MainActivity :
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun saveNewMemory(crop: Crop, memory: Bitmap) {
 
-        val crop = mSavedCrops.get(mSavedCrops.indexOf(crop))
-
         // Update crops memories
         val memoriesSize = crop.memoriesFromString().size + 1
         val filename = crop.name + "_mem_" + memoriesSize + ".jpg"
@@ -505,18 +518,17 @@ class MainActivity :
 
         // Renavigate to Crop Status page with new memory
         onSupportNavigateUp()
-        val contain = ArrayList<Crop>()
-        contain.add(crop)
         mNavController.navigate(
             R.id.action_cropListFragment_to_cropFragment,
             bundleOf(
-                Pair(STATUS_CROP, contain),
-                Pair(ARG_DRAWABLES, mDrawableResources)
+                Pair(STATUS_CROP, crop),
+                Pair(ARG_DRAWABLES, mDrawableResources),
+                Pair(CROP_MEMORIES, loadBitmaps(crop))
             )
         )
 
         // Save updated crop list
-        dbg.updateCrops(mSavedCrops)
+        dbg.updateCrop(crop)
     }
     /**************************************************************************************
      * END CROP STATUS OVERRIDES
@@ -565,10 +577,7 @@ class MainActivity :
     override fun saveNote(note: Note) {
 
         // Check if note already exists
-        val maybeNote = getAllNotes().find {
-            Log.d(TAG, "saveNote(note: Note): Note found.")
-            it.id == note.id
-        }
+        val maybeNote = dbg.getNoteByUid(note.id)
 
         val crop = mSavedCrops.find {
             Log.d(TAG, "saveNote(note: Note): Crop found.")

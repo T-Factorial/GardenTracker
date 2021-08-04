@@ -1,5 +1,7 @@
 package com.example.GardenTracker.model
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -35,7 +37,7 @@ class Crop()
     }
 
     constructor(cy: Int, cd: Int, ch: Int, nm: String, typ: String, growth: Int,
-                water: ArrayList<Int>, mems: String, currDay: Int, currHour: Int,
+                water: ArrayList<Int>, mems: String,
                 wNeed: Boolean, harvDay: Int, readyHarv: Boolean) : this() {
         creationYear = cy
         creationDay = cd
@@ -45,8 +47,6 @@ class Crop()
         growthTime = growth
         waterHours = waterHoursToString(water)
         memories = mems
-        currentDay = currDay
-        currentHour = currHour
         needsWater = wNeed
         harvestDay = harvDay
         readyToHarvest = readyHarv
@@ -66,7 +66,7 @@ class Crop()
 
     @ColumnInfo(name = "creation_day")
     var creationDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                        .get(Calendar.DAY_OF_MONTH)
+                        .get(Calendar.DAY_OF_YEAR)
 
     @ColumnInfo(name = "creation_hour")
     var creationHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
@@ -93,15 +93,6 @@ class Crop()
     @ColumnInfo(name = "current_year")
     var currentYear: Int = creationYear
 
-    @ColumnInfo(name = "current_month")
-    var currentMonth: Int = creationMonth
-
-    @ColumnInfo(name = "current_day")
-    var currentDay  : Int = creationDay
-
-    @ColumnInfo(name = "current_hour")
-    var currentHour : Int = creationHour
-
     @ColumnInfo(name = "needs_water")
     var needsWater : Boolean = false
 
@@ -111,14 +102,6 @@ class Crop()
     @ColumnInfo(name = "ready_to_harvest")
     var readyToHarvest : Boolean = false
 
-
-    fun setReadyToHarvest() { readyToHarvest = true }
-
-    // Assumes current date data is up-to-date
-    fun checkReadyToHarvest(): Boolean {
-        if (harvestDay <= currentDay) return true
-        return false
-    }
     fun water() {
         needsWater = false
     }
@@ -134,37 +117,9 @@ class Crop()
         }
     }
 
-    // Update the current year
-    fun updateCurrentY() {
-        currentYear = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-            .get(Calendar.YEAR)
-    }
-    // Update the current month
-    fun updateCurrentM() {
-        currentMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-            .get(Calendar.MONTH)
-    }
-    // Update the current day
-    fun updateCurrentD() {
-        currentDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-            .get(Calendar.DAY_OF_MONTH)
-    }
-    // Update the current hour
-    fun updateCurrentH() {
-        currentHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-            .get(Calendar.HOUR_OF_DAY)
-    }
-
-    // Update current date data
-    fun updateCropDate() {
-        updateCurrentY()
-        updateCurrentM()
-        updateCurrentD()
-        updateCurrentH()
-    }
-
     fun harvestProgress(): Int {
-        val daysUntilHarvest = harvestDay - currentDay
+        val daysUntilHarvest = harvestDay - GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
+            .get(Calendar.DAY_OF_YEAR)
         val daysPassed = growthTime - daysUntilHarvest
         var progress = 0
         if (growthTime != 0) {
