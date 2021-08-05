@@ -16,12 +16,14 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.GardenTracker.CropDialog
 import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.adapters.MyMemoryAdapter
 import com.example.GardenTracker.R
+import com.example.GardenTracker.model.CropStatusViewModel
 
 private const val STATUS_CROP = "status_crop"
 private const val EDIT_CROP = "edit-crop"
@@ -73,20 +75,36 @@ class CropFragment : Fragment() {
         val waterStatus: TextView = view.findViewById(R.id.water_status_crop)
         val waterTimes: TextView = view.findViewById(R.id.watering_times)
 
-        if (mStatusCrop.needsWater) {
-            waterStatus.text = "Thirsty"
-            waterStatus.setTextColor(Color.RED)
-        } else {
-            waterStatus.text = "Quenched"
-            waterStatus.setTextColor(Color.BLUE)
+        // Setup LiveData and Observers
+        val waterStatusObserver = Observer<String> { nStatus ->
+            waterStatus.text = nStatus
+            if (mStatusCrop.needsWater) {
+                waterStatus.setTextColor(Color.RED)
+            } else {
+                waterStatus.setTextColor(Color.BLUE)
+            }
         }
+        CropStatusViewModel.waterStatus.observe(this, waterStatusObserver)
 
-        val waterHours = mStatusCrop.waterHoursFromString()
-        waterHours.forEach {
-            if (waterHours.indexOf(it) != waterHours.lastIndex)
-            waterTimes.text = "${waterTimes.text} ${hourToString(it)},"
-            else waterTimes.text = "${waterTimes.text} ${hourToString(it)}"
+        val waterHoursObserver = Observer<ArrayList<Int>> { nHours ->
+            waterTimes.text = ""
+            nHours.forEach {
+                if (nHours.indexOf(it) != nHours.lastIndex)
+                waterTimes.text = "${waterTimes.text} ${hourToString(it)},"
+                else waterTimes.text = "${waterTimes.text} ${hourToString(it)}"
+            }
         }
+        CropStatusViewModel.waterHours.observe(this, waterHoursObserver)
+
+
+        // This block of code should immediately update the water status and water hours on the
+        // crop status page
+        if (mStatusCrop.needsWater) {
+            CropStatusViewModel.waterStatus.value = "Thirsty"
+        } else {
+            CropStatusViewModel.waterStatus.value = "Quenched"
+        }
+        CropStatusViewModel.waterHours.value = mStatusCrop.waterHoursFromString()
 
         // Get view buttons
         val waterButton: Button = view.findViewById(R.id.water_crop_button)
@@ -175,6 +193,13 @@ class CropFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.title = mStatusCrop.name + " Status"
+    }
+
+    override fun onStop() {
+        super.onStop()
+        CropStatusViewModel.growthProgress.value = 0
+        CropStatusViewModel.waterStatus.value = ""
+        CropStatusViewModel.waterHours.value = ArrayList()
     }
 
     override fun onAttach(context: Context) {

@@ -27,6 +27,7 @@ import com.example.GardenTracker.fragments.NoteFragment
 import com.example.GardenTracker.fragments.NotesFragment
 import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.model.Note
+import com.example.GardenTracker.model.CropStatusViewModel
 import com.google.android.material.navigation.NavigationView
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
@@ -178,7 +179,12 @@ class MainActivity :
     private fun updateCropsTime() {
         Log.d(TAG, "Updating the water status of all crops")
         mSavedCrops.forEach {
-                it.updateNeedsWater(dateTimeHolder.currHour)
+            it.updateNeedsWater(dateTimeHolder.currHour)
+            if (it.needsWater) {
+                CropStatusViewModel.waterStatus.value = "Thirsty"
+            } else {
+                CropStatusViewModel.waterStatus.value = "Quenched"
+            }
         }
 
     }
@@ -411,19 +417,11 @@ class MainActivity :
      ****************************************************************************************/
 
     override fun onEditDialogAccept(editCrop: Crop) {
+        // Update CropStatusViewModel
+        CropStatusViewModel.waterHours.value = editCrop.waterHoursFromString()
+
         // Update crop in database
         dbg.updateCrop(editCrop)
-
-        // Renavigate with updated crop data
-        onSupportNavigateUp()
-        mNavController.navigate(
-            R.id.action_cropListFragment_to_cropFragment,
-            bundleOf(
-                Pair(STATUS_CROP, editCrop),
-                Pair(ARG_DRAWABLES, mDrawableResources),
-                Pair(CROP_MEMORIES, loadBitmaps(editCrop))
-            )
-        )
     }
 
     override fun waterCrop(crop: Crop) {
