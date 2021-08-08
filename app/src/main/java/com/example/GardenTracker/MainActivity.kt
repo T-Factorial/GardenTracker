@@ -186,7 +186,8 @@ class MainActivity :
                 CropStatusViewModel.waterStatus.value = "Quenched"
             }
         }
-
+        Log.d(TAG, "Updating crops in database")
+        dbg.updateCrops(mSavedCrops)
     }
 
     private fun loadDrawableResources() {

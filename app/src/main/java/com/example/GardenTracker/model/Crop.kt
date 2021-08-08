@@ -108,11 +108,13 @@ class Crop()
 
     // Assumes current date data is up-to-date
     fun updateNeedsWater(currHour: Int) {
-        for (hour in waterHoursFromString().reversed()) {
-            if (currHour < hour) continue // Continue until
-            if (currHour >= hour) { // Time for water
-                needsWater = true
-                break
+        if (!needsWater) {
+            for (hour in waterHoursFromString().reversed()) {
+                if (currHour < hour) continue // Continue until
+                if (currHour >= hour) { // Time for water
+                    needsWater = true
+                    break
+                }
             }
         }
     }
@@ -160,9 +162,9 @@ class Crop()
     private fun memoriesToString(memories: List<String>): String {
         var final = ""
         memories.forEach {
-            final += "$it,"
+            final += "`$it"
         }
-        final.dropLast(1)
+        final += '|'
         return final
     }
 
@@ -170,11 +172,15 @@ class Crop()
         val final = ArrayList<String>()
         var temp = ""
         memories.forEach {
-            if (it == ',') {
-                final.add(temp)
-                temp = ""
-            } else {
-                temp += it
+            if (it != '|') {
+                if (it != '`') {
+                    temp += it
+                } else {
+                    if (temp != "") {
+                        final.add(temp)
+                        temp = ""
+                    }
+                }
             }
         }
         return final
@@ -184,11 +190,15 @@ class Crop()
         val final = ArrayList<String>()
         var temp = ""
         mems.forEach {
-            if (it == ',') {
-                final.add(temp)
-                temp = ""
-            } else {
-                temp += it
+            if (it != '|') {
+                if (it != '`') {
+                    temp += it
+                } else {
+                    if (temp != "") {
+                        final.add(temp)
+                        temp = ""
+                    }
+                }
             }
         }
         return final
