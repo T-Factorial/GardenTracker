@@ -19,6 +19,10 @@
     <string name="WaterLabel">Next Water</string>
     <string name="CropTitle">Your\ </string>
     <string name="CropToNotes">Go to Notes</string>
+    <string name="WaterChannelName">Watering Notifications</string>
+    <string name="WaterChannelDescription">Notify user plants need watered.</string>
+    <string name="WaterNotificationTitle">Water Alert</string>
+    <string name="WaterNotificationContent">You have plants that need watering!</string>
 
     <string-array name="crop_type_spinner_list">
         <item>Select Type from dropdown:</item>

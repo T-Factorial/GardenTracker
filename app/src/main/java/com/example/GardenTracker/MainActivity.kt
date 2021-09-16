@@ -1,5 +1,8 @@
 package com.example.GardenTracker
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,6 +17,8 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -47,6 +52,8 @@ private const val STATUS_CROP = "status_crop"
 private const val DISPLAY_MEMORY = "display-memory"
 private const val CAMERA_REQUEST = 0
 private const val FROM_ALL_NOTES = "from-all-notes"
+private const val WATER_CHANNEL_ID = "water-channel"
+private const val WATER_NOTIFY_ID = 0
 
 class MainActivity :
     AppCompatActivity(),
@@ -61,6 +68,8 @@ class MainActivity :
     private val TAG = "MAIN_ACTIVITY"
 
     private var iCapture = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+    private lateinit var iCropListFrag: Intent
+    private lateinit var iPendingCropList: PendingIntent
 
     private var mAllNotes: Boolean = true
 
@@ -92,10 +101,30 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        iCropListFrag = Intent(this, CropListFragment::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        iPendingCropList = PendingIntent.getActivity(this, 0, iCropListFrag, 0)
+
         // Register DateTime Receiver
         Log.d(TAG, "Registering DateTimeReceiver...")
         receiver = DateTimeReceiver(dateTimeHolder)
         registerReceiver(receiver, IntentFilter("android.intent.action.TIME_TICK"))
+
+        // Create Notification Channels
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Setup channels
+            val waterName = getString(R.string.WaterChannelName)
+            val waterDescription = getString(R.string.WaterChannelDescription)
+            val waterImportance = NotificationManager.IMPORTANCE_DEFAULT
+            val waterChannel = NotificationChannel(WATER_CHANNEL_ID, waterName, waterImportance).apply {
+                description = waterDescription
+            }
+
+            // Register Channels
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+                .createNotificationChannel(waterChannel)
+        }
 
         // Get database gateway
         dbg = DatabaseGateway(this)
@@ -114,12 +143,12 @@ class MainActivity :
             mSavedCrops = ArrayList<Crop>()
         }
 
-        if (dbg.cropDataToLoad()) {
+        mSavedCrops = if (dbg.cropDataToLoad()) {
             Log.d(TAG, "Loading crops from database...")
-            mSavedCrops = dbg.getAllCrops()
+            dbg.getAllCrops()
         } else {
             Log.d(TAG, "No crops to load.")
-            mSavedCrops = ArrayList()
+            ArrayList()
         }
 
         // Load the 4 crop icons
@@ -174,6 +203,7 @@ class MainActivity :
 
     override fun timeUpdateCrops() {
         updateCropsTime()
+        checkToNotify()
     }
 
     private fun updateCropsTime() {
@@ -188,6 +218,24 @@ class MainActivity :
         }
         Log.d(TAG, "Updating crops in database")
         dbg.updateCrops(mSavedCrops)
+    }
+
+    private fun checkToNotify() {
+        if (mSavedCrops.any { crop -> crop.needsWater }) {
+            // Setup notification
+            var builder = NotificationCompat.Builder(this, WATER_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_baseline_opacity_24)
+                .setContentTitle(getString(R.string.WaterNotificationTitle))
+                .setContentText(getString(R.string.WaterNotificationContent))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(iPendingCropList)
+                .setAutoCancel(true)
+
+            // Display notification
+            with(NotificationManagerCompat.from(this)) {
+                notify(WATER_NOTIFY_ID, builder.build())
+            }
+        }
     }
 
     private fun loadDrawableResources() {

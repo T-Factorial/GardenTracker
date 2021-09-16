@@ -47,25 +47,6 @@ class DateTimeReceiver(timeData: MainActivity.DateTimeHolder) : BroadcastReceive
                     // Check and update crops for watering
                     listener?.timeUpdateCrops()
                 }
-
-                // TODO integrate the following commented-out code elsewhere in the program.
-                /*
-                // Update current crop date
-                thisCrop.updateCropDate()
-
-                // Check if crop ready to harvest
-                if (thisCrop.checkReadyToHarvest()) {
-                    thisCrop.setReadyToHarvest()
-                    // TODO notify user crop is ready to harvest
-                }
-
-                // Check if crop needs water
-                thisCrop.updateNeedsWater()
-
-                if (thisCrop.needsWater) {
-                    // TODO notify user crop needs to be watered
-                }
-                */
             }
         }
 
