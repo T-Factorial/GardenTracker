@@ -1,5 +1,7 @@
 # GardenTracker
 
+W.I.P.
+
 A simple app to help keep up with your garden written in Kotlin.
 
 Schedule times that the app will remind you when plants need watering.
