@@ -12,6 +12,8 @@ import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.example.GardenTracker.model.Crop
+import java.util.*
+import kotlin.collections.ArrayList
 
 private const val EDIT_CROP = "edit-crop"
 
@@ -180,6 +182,10 @@ class CropDialog : DialogFragment() {
                                     growth.toString().toInt(), waterHours)
                                 )
                             }
+                            for (time: Int in waterHours) {
+                                val wateringTimeInMillis = calculateWateringTime(time)
+                                (activity as MainActivity).scheduleWateringReminder(wateringTimeInMillis)
+                            }
                         }
                     })
                 .setNegativeButton(R.string.NegButt,
@@ -234,6 +240,23 @@ class CropDialog : DialogFragment() {
             23 ->  return "11:00PM"
             else -> return ""
         }
+    }
+
+    private fun calculateWateringTime(time: Int): Long {
+        val calendar = Calendar.getInstance()
+
+        // Set the watering hour (0 - 23)
+        calendar.set(Calendar.HOUR_OF_DAY, time)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        // If the calculated time is in the past for today, set it for tomorrow
+        if (calendar.timeInMillis <= System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        return calendar.timeInMillis
     }
 
     interface OnAddCropDialogInteraction {

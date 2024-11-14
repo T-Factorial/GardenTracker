@@ -201,7 +201,7 @@ class MainActivity :
     }
 
     // Function to schedule watering reminder
-    private fun scheduleWateringReminder(wateringTimeInMillis: Long) {
+    fun scheduleWateringReminder(wateringTimeInMillis: Long) {
 
         Log.d(TAG, "Scheduling watering reminder for " + wateringTimeInMillis)
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
