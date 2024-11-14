@@ -1,5 +1,6 @@
 package com.example.GardenTracker
 
+import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -10,6 +11,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.util.Log
 import android.view.MenuItem
@@ -34,6 +36,7 @@ import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.model.Note
 import com.example.GardenTracker.model.CropStatusViewModel
 import com.google.android.material.navigation.NavigationView
+import kotlinx.android.parcel.Parcelize
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -57,7 +60,6 @@ private const val WATER_NOTIFY_ID = 0
 
 class MainActivity :
     AppCompatActivity(),
-    DateTimeReceiver.BroadcastReceiverListener,
     NavigationView.OnNavigationItemSelectedListener,
     CropListFragment.OnCropFragmentInteractionListener,
     CropDialog.OnAddCropDialogInteraction,
@@ -85,7 +87,8 @@ class MainActivity :
     private lateinit var mNavController: NavController
     private lateinit var mDrawableResources: ArrayList<Drawable>
 
-    class DateTimeHolder() {
+    @Parcelize
+    class DateTimeHolder() : Parcelable {
         var currYear: Int = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
             .get(Calendar.YEAR)
         var currMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
@@ -105,11 +108,6 @@ class MainActivity :
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         iPendingCropList = PendingIntent.getActivity(this, 0, iCropListFrag, 0)
-
-        // Register DateTime Receiver
-        Log.d(TAG, "Registering DateTimeReceiver...")
-        receiver = DateTimeReceiver(dateTimeHolder)
-        registerReceiver(receiver, IntentFilter("android.intent.action.TIME_TICK"))
 
         // Create Notification Channels
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -173,17 +171,13 @@ class MainActivity :
         // Set nav listener
         mNavView.setNavigationItemSelectedListener(this)
 
+        // Update crop data
+        timeUpdateCrops()
+
     }
 
     override fun onStop() {
         super.onStop()
-
-        // Unregister DateTimeReceiver
-        /*
-        Log.d(TAG, "onStop unregistering broadcast receiver...")
-        if (receiver != null) {
-            unregisterReceiver(receiver)
-        }*/
 
         Log.d(TAG,"onStop closing databases...")
         // Close databases
@@ -201,16 +195,42 @@ class MainActivity :
         super.onSaveInstanceState(outState)
     }
 
-    override fun timeUpdateCrops() {
+    private fun timeUpdateCrops() {
         updateCropsTime()
         checkToNotify()
     }
 
+    // Function to schedule watering reminder
+    private fun scheduleWateringReminder(wateringTimeInMillis: Long) {
+
+        Log.d(TAG, "Scheduling watering reminder for " + wateringTimeInMillis)
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, DateTimeReceiver::class.java)
+        intent.putExtra("EXTRA_WATERING_TIME", wateringTimeInMillis)
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            wateringTimeInMillis,
+            pendingIntent
+        )
+    }
+
+
     private fun updateCropsTime() {
         Log.d(TAG, "Updating the water status of all crops")
-        mSavedCrops.forEach {
-            it.updateNeedsWater(dateTimeHolder.currHour)
-            if (it.needsWater) {
+        mSavedCrops.forEach { crop ->
+            crop.updateNeedsWater(dateTimeHolder.currHour)
+            // TODO
+            // "CropStatusViewModel"? Shouldn't it be more tied to crop?
+            // See where else CropStatusViewModel is used.
+            if (crop.needsWater) {
                 CropStatusViewModel.waterStatus.value = "Thirsty"
             } else {
                 CropStatusViewModel.waterStatus.value = "Quenched"
@@ -317,7 +337,7 @@ class MainActivity :
 
     }
 
-    fun loadBitmaps(crop: Crop) : ArrayList<Bitmap> {
+    private fun loadBitmaps(crop: Crop) : ArrayList<Bitmap> {
 
         val files : List<String> = crop.memoriesFromString()
         val bmps = java.util.ArrayList<Bitmap>()
@@ -373,7 +393,7 @@ class MainActivity :
     }
 
     override fun onBackPressed() {
-        Log.d(TAG, "onBackPresed() called")
+        Log.d(TAG, "onBackPressed() called")
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START)
         } else {
@@ -384,7 +404,7 @@ class MainActivity :
     // This listener attached to each item in the NavDrawer
     // When an item is selected, we go to it using the Nav Component's NavController
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        item.setChecked(true)
+        item.isChecked = true
         mDrawerLayout.closeDrawers()
         Log.d(TAG, "Navigating to id: ${item.itemId}")
         when (item.itemId) {

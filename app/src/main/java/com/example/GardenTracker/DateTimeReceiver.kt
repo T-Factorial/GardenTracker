@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.example.GardenTracker.fragments.CropFragment
 import java.util.*
 
@@ -14,46 +16,29 @@ class DateTimeReceiver(timeData: MainActivity.DateTimeHolder) : BroadcastReceive
 
     private val TAG = "DATE_TIME_RECEIVER"
 
-    private var listener: BroadcastReceiverListener? = null
-    private var time: MainActivity.DateTimeHolder = timeData
+    override fun onReceive(context: Context, intent: Intent) {
 
-    override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d(TAG, "Received watering schedule time.")
 
-        if (context is BroadcastReceiverListener) {
-            listener = context
-        } else {
-            throw RuntimeException("$context must implement BroadcastReceiverListener")
+        val wateringTime = intent.getLongExtra("EXTRA_WATERING_TIME", -1)
+
+        if (wateringTime != -1L) {
+            // Check if current time matches the watering time, then show the notification
+            showWateringNotification(context)
         }
-
-        Log.d(TAG, "Received an intent: ${intent.toString()}")
-        if (intent != null) {
-            if (intent.action == "android.intent.action.TIME_TICK") { // Check intent matches
-                if (time.currHour != GregorianCalendar.  // Only perform updates at each hour
-                    getInstance(Locale("en_US@calendar=english"))
-                        .get(Calendar.HOUR_OF_DAY)) {
-
-                    Log.d(TAG, "Updating app's date information")
-
-                    // Update the app's current date data
-                    time.currYear = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                        .get(Calendar.YEAR)
-                    time.currMonth = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                        .get(Calendar.MONTH)
-                    time.currDay = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                        .get(Calendar.DAY_OF_MONTH)
-                    time.currHour = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
-                        .get(Calendar.HOUR_OF_DAY)
-
-                    // Check and update crops for watering
-                    listener?.timeUpdateCrops()
-                }
-            }
-        }
-
-        listener = null
     }
 
-    interface BroadcastReceiverListener {
-        fun timeUpdateCrops()
+    private fun showWateringNotification(context: Context) {
+
+        Log.d(TAG, "Building notification..")
+
+        val builder = NotificationCompat.Builder(context, "WaterReminderChannel")
+            .setSmallIcon(R.drawable.ic_baseline_opacity_24)
+            .setContentTitle("Water Alert")
+            .setContentText("Your plants need watering!")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        val notificationManager = NotificationManagerCompat.from(context)
+        notificationManager.notify(1, builder.build())
     }
 }
