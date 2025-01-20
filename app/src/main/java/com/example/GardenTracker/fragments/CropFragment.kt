@@ -136,6 +136,8 @@ class CropFragment : Fragment() {
         // Set button listeners
         waterButton.setOnClickListener {
             listener?.waterCrop(mStatusCrop)
+            CropStatusViewModel.waterStatus.value = if (mStatusCrop.needsWater) "Thirsty" else "Quenched" // Update LiveData
+            Log.d(TAG, "Crop watered. Status updated to: ${CropStatusViewModel.waterStatus.value}")
         }
 
         editButton.setOnClickListener {

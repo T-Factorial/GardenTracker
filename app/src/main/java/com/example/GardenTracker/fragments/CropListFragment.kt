@@ -103,6 +103,12 @@ class CropListFragment : Fragment() {
         listener = null
     }
 
+    fun addCrop(newCrop: Crop) {
+        mCropList.add(newCrop) // Add the new crop to the list
+        mAdapter.notifyItemInserted(mCropList.size - 1) // Notify the adapter
+        mRecyclerView.scrollToPosition(mCropList.size - 1) // Scroll to the new crop
+    }
+
     interface OnCropFragmentInteractionListener {
         fun onCropListInteraction(item: Crop)
     }

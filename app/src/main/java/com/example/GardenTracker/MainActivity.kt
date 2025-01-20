@@ -455,13 +455,16 @@ class MainActivity :
      * BEGIN CROP LIST OVERRIDES
      ****************************************************************************************/
     override fun onAddDialogAccept(newCrop: Crop) {
+        Log.d(TAG, "New Crop received.")
+
         // Add to saved crops
         mSavedCrops.add(newCrop)
 
-        Log.d(TAG, "New Crop received.")
-
         // Save the new crops data
         dbg.insertCrop(newCrop)
+
+        val fragment = supportFragmentManager.findFragmentByTag("CropListFragment") as? CropListFragment
+        fragment?.addCrop(newCrop)
 
     }
 
