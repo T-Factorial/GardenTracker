@@ -6,6 +6,12 @@ import androidx.room.PrimaryKey
 import java.io.Serializable
 import java.util.*
 
+/**
+ * This class holds model data for Notes
+ * Contains creation day, month and year,
+ * crop name, type, and the note's content.
+ */
+
 @Entity
 class Note() : Serializable {
 

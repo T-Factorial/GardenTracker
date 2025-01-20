@@ -21,6 +21,12 @@ private const val NOTE = "note"
 private const val FROM_ALL_NOTES = "from-all-notes"
 
 // TODO: Make '`' and '|' unallowable characters
+// TODO: Fix date notes created. Note created Jan. 19 2025 saved with '19/0/2025' as date in title
+
+/**
+ * This fragment allows the user to make a note for a selected crop.
+ * The note is saved with the title of format: "crop name" "date note created"
+ */
 
 class NoteFragment : Fragment() {
 

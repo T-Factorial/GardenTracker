@@ -17,6 +17,10 @@ import kotlin.collections.ArrayList
 
 private const val EDIT_CROP = "edit-crop"
 
+/**
+ * This class is a Dialog for crop creation and editing.
+ */
+
 class CropDialog : DialogFragment() {
 
     private var listener: OnAddCropDialogInteraction? = null

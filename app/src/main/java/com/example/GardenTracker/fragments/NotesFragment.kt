@@ -21,6 +21,11 @@ import com.example.GardenTracker.database.DatabaseGateway
 import com.example.GardenTracker.model.Note
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
+/**
+ * This fragment contains a list of all existing notes for a selected crop.
+ * User can view existing notes, or create new ones from here.
+ * addNoteBtn will take user to NoteFragment.
+ */
 
 class NotesFragment : Fragment() {
 

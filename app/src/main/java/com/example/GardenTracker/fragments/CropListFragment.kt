@@ -18,7 +18,10 @@ import com.example.GardenTracker.adapters.MyCropAdapter
 import com.example.GardenTracker.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-// I pretty much just load up the RecyclerView with the data I'm given!
+/**
+ * This fragment displays all the crops the user currently has saved.
+ * These crops are meant to be currently growing in the user's garden.
+ */
 class CropListFragment : Fragment() {
 
     private val TAG = "CROP_LIST_FRAGMENT"

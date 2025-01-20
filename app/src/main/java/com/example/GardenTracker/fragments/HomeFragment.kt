@@ -13,6 +13,17 @@ import com.example.GardenTracker.R
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "DRAWABLE"
 
+/**
+ * This fragment is meant to be the Home fragment of the app.
+ * It will contain a summary of crop statuses (perhaps # of crops that need
+ * watered, and whether there is a crop that has reached 100% growth progress)
+ * It could also contain a carousel of crop memories, and shortcuts to notes and all memories
+ *
+ * Ideally, we change the app from it's current state to get rid of the Drawer layout, which
+ * is currently the user's main navigational point around the app, to large buttons on the home
+ * screen that take you to each of the app's destinations.
+ */
+
 class HomeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private lateinit var mDrawables: ArrayList<Drawable?>

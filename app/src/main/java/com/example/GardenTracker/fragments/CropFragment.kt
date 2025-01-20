@@ -31,6 +31,14 @@ private const val ARG_DRAWABLES = "drawable-resources"
 private const val CROP_MEMORIES = "crop-memories"
 private const val CAMERA_REQUEST = 0
 
+/**
+ * This Fragment contains general information about a specific crop
+ * You can see the crop's watering status and growth status, and times it needs to be watered
+ * An edit button allows you to make changes to vital information about the crop.
+ * The water button will notify the app that the user has watered the crop.
+ * You can also go to the crop's note page and add notes or view old ones.
+ */
+
 class CropFragment : Fragment() {
 
     private val TAG = "CROP_FRAGMENT"

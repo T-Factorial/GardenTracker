@@ -12,6 +12,10 @@ import com.example.GardenTracker.R
 
 private const val DISPLAY_MEMORY = "display-memory"
 
+/**
+ * This fragment displays a full-sized image of a selected memory
+ */
+
 class MemoryDisplayFragment : Fragment() {
 
     private lateinit var memoryDisplay : ImageView

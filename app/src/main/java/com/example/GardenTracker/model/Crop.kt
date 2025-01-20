@@ -8,6 +8,15 @@ import androidx.room.PrimaryKey
 import java.io.Serializable
 import java.util.*
 
+/**
+ * This class contains the model for Crop data
+ * A Crop should have:
+ * Name, Type, Growth Time, Hours needs watered.
+ * Functions to handle crop watering
+ * Functions to handle growth progress/harvest progress
+ * Functions to handle memory capture and saving
+ */
+
 @Entity
 class Crop()
     : Serializable {

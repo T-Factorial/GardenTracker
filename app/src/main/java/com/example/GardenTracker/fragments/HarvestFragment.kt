@@ -14,9 +14,8 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 /**
- * A simple [Fragment] subclass.
- * Use the [HarvestFragment.newInstance] factory method to
- * create an instance of this fragment.
+ * This fragment is meant to contain a list of harvested crops, or past crops.
+ * These are crops that have reached 100% of their growth progress.
  */
 class HarvestFragment : Fragment() {
     // TODO: Rename and change types of parameters
