@@ -16,6 +16,7 @@ import com.example.GardenTracker.CropDialog
 import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.adapters.MyCropAdapter
 import com.example.GardenTracker.R
+import com.example.GardenTracker.model.CropListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 /**
@@ -27,8 +28,7 @@ class CropListFragment : Fragment() {
     private val TAG = "CROP_LIST_FRAGMENT"
 
     private var columnCount = 1
-    private lateinit var mCropList: ArrayList<Crop>
-    private lateinit var mDrawableResources: ArrayList<*>
+    private lateinit var mDrawableResources: List<Drawable?>
 
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mAdapter: MyCropAdapter
@@ -42,8 +42,7 @@ class CropListFragment : Fragment() {
         arguments?.let {
             Log.d(TAG, "Unpacking savedInstanceState arguments.")
             columnCount = it.getInt(ARG_COLUMN_COUNT)
-            mCropList = it.getSerializable(ARG_CROP_LIST) as ArrayList<Crop>
-            mDrawableResources = it.getSerializable(ARG_DRAWABLES) as ArrayList<*>
+            mDrawableResources = it.getSerializable(ARG_DRAWABLES) as List<Drawable?>
         }
     }
 
@@ -67,13 +66,17 @@ class CropListFragment : Fragment() {
             }
             adapter = MyCropAdapter(
                 mDrawableResources,
-                mCropList,
                 listener
             )
             mAdapter = adapter as MyCropAdapter
 
         }
         mAdapter.notifyDataSetChanged()
+
+        // Observe crop list
+        CropListViewModel.cropList.observe(viewLifecycleOwner) { updatedList ->
+            mAdapter.submitList(updatedList)
+        }
 
         // Add click listener to FAB
         addCropBtn.setOnClickListener() {
@@ -103,12 +106,6 @@ class CropListFragment : Fragment() {
         listener = null
     }
 
-    fun addCrop(newCrop: Crop) {
-        mCropList.add(newCrop) // Add the new crop to the list
-        mAdapter.notifyItemInserted(mCropList.size - 1) // Notify the adapter
-        mRecyclerView.scrollToPosition(mCropList.size - 1) // Scroll to the new crop
-    }
-
     interface OnCropFragmentInteractionListener {
         fun onCropListInteraction(item: Crop)
     }
@@ -120,7 +117,7 @@ class CropListFragment : Fragment() {
         const val ARG_DRAWABLES = "drawable-resources"
 
         @JvmStatic
-        fun newInstance(columnCount: Int, cropList: ArrayList<Crop>, drawables: ArrayList<Drawable?>) =
+        fun newInstance(columnCount: Int, cropList: ArrayList<Crop>, drawables: ArrayList<*>) =
             CropListFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_COLUMN_COUNT, columnCount)

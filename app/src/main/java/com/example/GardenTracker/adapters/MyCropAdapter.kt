@@ -2,31 +2,28 @@ package com.example.GardenTracker.adapters
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.example.GardenTracker.R
-
-
 import com.example.GardenTracker.fragments.CropListFragment.OnCropFragmentInteractionListener
 import com.example.GardenTracker.model.Crop
 import kotlinx.android.synthetic.main.fragment_crop.view.*
 
 class MyCropAdapter(
-    val drawables: ArrayList<*>,
-    var mValues: ArrayList<Crop>,
-    mListener: OnCropFragmentInteractionListener?
-) : RecyclerView.Adapter<MyCropAdapter.ViewHolder>() {
+    private val drawables: List<Drawable?>,
+    private val mListener: OnCropFragmentInteractionListener?
+) : ListAdapter<Crop, MyCropAdapter.ViewHolder>(CropDiffCallback()) {
 
     private val mOnClickListener: View.OnClickListener
-    private var mDrawables : ArrayList<Drawable?>
 
     init {
-        mDrawables = drawables as ArrayList<Drawable?>
         mOnClickListener = View.OnClickListener { v ->
             val item = v.tag as Crop
             mListener?.onCropListInteraction(item)
@@ -40,15 +37,15 @@ class MyCropAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = mValues[position]
+        val item = getItem(position)
 
         holder.cropType.setImageDrawable(
-            when(item.type) {
-                "Flower" -> mDrawables[0]
-                "Herb" -> mDrawables[1]
-                "Fruit" -> mDrawables[2]
-                "Vegetable" -> mDrawables[3]
-                else -> mDrawables[0]
+            when (item.type) {
+                "Flower" -> drawables[0]
+                "Herb" -> drawables[1]
+                "Fruit" -> drawables[2]
+                "Vegetable" -> drawables[3]
+                else -> drawables[0]
             }
         )
         holder.cropName.text = item.name
@@ -68,18 +65,21 @@ class MyCropAdapter(
         }
     }
 
-    override fun getItemCount(): Int = mValues.size
-
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
         val cropType: ImageView = mView.crop_type
         val cropName: TextView = mView.crop_label
         val timeToHarvest: ProgressBar = mView.time_to_harvest
         val waterStatus: TextView = mView.water_status
+    }
+}
 
-        /*
-        override fun toString(): String {
-            return super.toString() + " '" + timeToHarvest.text + "'"
-        }
-         */
+class CropDiffCallback : DiffUtil.ItemCallback<Crop>() {
+    override fun areItemsTheSame(oldItem: Crop, newItem: Crop): Boolean {
+        return oldItem.id == newItem.id // Use unique IDs to compare items
+    }
+
+    override fun areContentsTheSame(oldItem: Crop, newItem: Crop): Boolean {
+        // TODO : implement .equals() for Crop
+        return oldItem.toString() == newItem.toString() // Use data class equals for deep comparison
     }
 }

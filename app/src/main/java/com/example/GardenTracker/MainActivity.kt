@@ -24,6 +24,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -33,6 +34,7 @@ import com.example.GardenTracker.fragments.CropListFragment
 import com.example.GardenTracker.fragments.NoteFragment
 import com.example.GardenTracker.fragments.NotesFragment
 import com.example.GardenTracker.model.Crop
+import com.example.GardenTracker.model.CropListViewModel
 import com.example.GardenTracker.model.Note
 import com.example.GardenTracker.model.CropStatusViewModel
 import com.google.android.material.navigation.NavigationView
@@ -148,6 +150,9 @@ class MainActivity :
             Log.d(TAG, "No crops to load.")
             ArrayList()
         }
+
+        // Initialize CropListViewModel with saved crops
+        CropListViewModel.cropList.value = mSavedCrops
 
         // Load the 4 crop icons
         loadDrawableResources()
@@ -414,7 +419,6 @@ class MainActivity :
                 mNavController.navigate(
                     R.id.action_homeFragment_to_cropFragment,
                     bundleOf(
-                        Pair(ARG_CROP_LIST, mSavedCrops),
                         Pair(ARG_DRAWABLES, mDrawableResources)
                     )
                 )
@@ -463,9 +467,8 @@ class MainActivity :
         // Save the new crops data
         dbg.insertCrop(newCrop)
 
-        val fragment = supportFragmentManager.findFragmentByTag("CropListFragment") as? CropListFragment
-        fragment?.addCrop(newCrop)
-
+        // Update Crop list vew model
+        CropListViewModel.cropList.value = mSavedCrops
     }
 
     override fun onCropListInteraction(item: Crop) {
