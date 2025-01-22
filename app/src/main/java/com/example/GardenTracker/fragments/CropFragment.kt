@@ -93,7 +93,7 @@ class CropFragment : Fragment() {
         }
         CropStatusViewModel.waterStatus.observe(this, waterStatusObserver)
 
-        val waterHoursObserver = Observer<ArrayList<Int>> { nHours ->
+        val waterHoursObserver = Observer<List<Int>> { nHours ->
             waterTimes.text = ""
             nHours.forEach {
                 if (nHours.indexOf(it) != nHours.lastIndex)

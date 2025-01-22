@@ -13,8 +13,8 @@ object CropStatusViewModel : ViewModel() {
         MutableLiveData<String>()
     }
 
-    val waterHours: MutableLiveData<ArrayList<Int>> by lazy {
-        MutableLiveData<ArrayList<Int>>()
+    val waterHours: MutableLiveData<List<Int>> by lazy {
+        MutableLiveData<List<Int>>()
     }
 
 }

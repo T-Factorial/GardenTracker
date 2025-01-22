@@ -50,7 +50,7 @@ class CropDialog : DialogFragment() {
 
             var isTouched = false
 
-            var waterHours: ArrayList<Int> = ArrayList()
+            var waterHours: MutableList<Int> = ArrayList()
 
             var dialogTitle = ""
             var posBtnMsg = ""
@@ -65,7 +65,7 @@ class CropDialog : DialogFragment() {
                     "Fruit" -> typeInput.setSelection(4)
                 }
                 harvestInput.setText("${mEditCrop!!.growthTime}")
-                waterHours = mEditCrop!!.waterHoursFromString()
+                waterHours = mEditCrop!!.waterHoursFromString() as MutableList<Int>
                 waterHours.forEach {
                     waterLabel.text = "${waterLabel.text}\n${intToTime(it)}"
                 }
@@ -83,8 +83,8 @@ class CropDialog : DialogFragment() {
 
             // Set click listener for undo add hour button
             undoButton.setOnClickListener {
-                if (0 < waterHours.size) {
-                    waterHours.removeLast()
+                if (waterHours.isNotEmpty()) {
+                    waterHours.dropLast(1)
                     waterLabel.text = waterLabel.text.dropLastWhile { c -> c != '\n' }
                     waterLabel.text = waterLabel.text.dropLast(1)
                 }
@@ -176,15 +176,16 @@ class CropDialog : DialogFragment() {
                         }
                         if (!err) {
                             if (mEditCrop != null) {
-                                mEditCrop!!.name = name
-                                mEditCrop!!.type = type
-                                mEditCrop!!.growthTime = growth.toString().toInt()
-                                mEditCrop!!.setNewWaterHours(waterHours)
+                                mEditCrop = mEditCrop!!.updateName(name)
+                                mEditCrop = mEditCrop!!.updateType(type)
+                                mEditCrop = mEditCrop!!.updateGrowthTime(growth.toString().toInt())
+                                mEditCrop = mEditCrop!!.updateWaterHours(waterHours)
                                 listener?.onEditDialogAccept(mEditCrop!!)
                             } else {
-                                listener?.onAddDialogAccept(Crop(name, type,
-                                    growth.toString().toInt(), waterHours)
-                                )
+                                var newCrop = Crop(name = name, type = type,
+                                    growthTime = growth.toString().toInt())
+                                newCrop = newCrop.updateWaterHours(waterHours)
+                                listener?.onAddDialogAccept(newCrop)
                             }
                             for (time: Int in waterHours) {
                                 val wateringTimeInMillis = calculateWateringTime(time)

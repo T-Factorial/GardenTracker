@@ -80,6 +80,6 @@ class CropDiffCallback : DiffUtil.ItemCallback<Crop>() {
 
     override fun areContentsTheSame(oldItem: Crop, newItem: Crop): Boolean {
         // TODO : implement .equals() for Crop
-        return oldItem.toString() == newItem.toString() // Use data class equals for deep comparison
+        return oldItem == newItem // Use data class equals for deep comparison
     }
 }
