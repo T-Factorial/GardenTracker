@@ -260,6 +260,24 @@ class DatabaseGateway constructor (context: Context) {
         }
     }
 
+    fun updateCropName(cropId: Int, newName: String) {
+        ioThread {
+            cropDao.updateName(cropId, newName)
+        }
+    }
+
+    fun updateCropType(cropId: Int, newType: String) {
+        ioThread {
+            cropDao.updateType(cropId, newType)
+        }
+    }
+
+    fun updateCropGrowthTime(cropId: Int, newGrowthTime: Int) {
+        ioThread {
+            cropDao.updateGrowthTime(cropId, newGrowthTime)
+        }
+    }
+
     fun deleteCrop(crop: Crop) {
         Log.d(TAG, "Deleting from database crop: $crop.")
         try {

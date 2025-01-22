@@ -36,6 +36,15 @@ interface CropDao {
     @Update // ???
     fun updateCrops(crops: List<Crop>)
 
+    @Query("UPDATE crop SET crop_name = :newName WHERE id = :cropId")
+    fun updateName(cropId: Int, newName: String)
+
+    @Query("UPDATE crop SET crop_type = :newType WHERE id = :cropId")
+    fun updateType(cropId: Int, newType: String)
+
+    @Query("UPDATE crop SET growth_time = :newGrowthTime WHERE id = :cropId")
+    fun updateGrowthTime(cropId: Int, newGrowthTime: Int)
+
     @Delete
     fun deleteCrop(delCrop: Crop)
 

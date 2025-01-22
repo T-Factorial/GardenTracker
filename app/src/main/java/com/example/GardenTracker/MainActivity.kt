@@ -232,9 +232,6 @@ class MainActivity :
         Log.d(TAG, "Updating the water status of all crops")
         mSavedCrops.forEach { crop ->
             crop.updateNeedsWater(dateTimeHolder.currHour)
-            // TODO
-            // "CropStatusViewModel"? Shouldn't it be more tied to crop?
-            // See where else CropStatusViewModel is used.
             if (crop.needsWater) {
                 CropStatusViewModel.waterStatus.value = "Thirsty"
             } else {
@@ -243,6 +240,7 @@ class MainActivity :
         }
         Log.d(TAG, "Updating crops in database")
         dbg.updateCrops(mSavedCrops)
+        CropListViewModel.cropList.value = mSavedCrops
     }
 
     private fun checkToNotify() {
@@ -492,11 +490,18 @@ class MainActivity :
      ****************************************************************************************/
 
     override fun onEditDialogAccept(editCrop: Crop) {
-        // Update CropStatusViewModel
-        CropStatusViewModel.waterHours.value = editCrop.waterHoursFromString()
-
         // Update crop in database
         dbg.updateCrop(editCrop)
+
+        // Update CropListViewModel
+        mSavedCrops.find { it.id == editCrop.id }?.apply {
+            val index = mSavedCrops.indexOf(this)
+            mSavedCrops[index] = editCrop
+        }
+        CropListViewModel.cropList.value = mSavedCrops
+
+        // Update CropStatusViewModel
+        CropStatusViewModel.waterHours.value = editCrop.waterHoursFromString()
     }
 
     override fun waterCrop(crop: Crop) {
