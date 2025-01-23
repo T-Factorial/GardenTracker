@@ -77,6 +77,7 @@ class CropListFragment : Fragment() {
         CropListViewModel.cropList.observe(viewLifecycleOwner) { updatedList ->
             Log.d(TAG, "Crop list updated: ${updatedList.size} items")
             mAdapter.submitList(updatedList)
+            mAdapter.notifyDataSetChanged()
         }
 
         // Add click listener to FAB

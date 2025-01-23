@@ -2,6 +2,7 @@ package com.example.GardenTracker.adapters
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,13 +22,11 @@ class MyCropAdapter(
     private val mListener: OnCropFragmentInteractionListener?
 ) : ListAdapter<Crop, MyCropAdapter.ViewHolder>(CropDiffCallback()) {
 
-    private val mOnClickListener: View.OnClickListener
+    private val TAG = "MY_CROP_ADAPTER"
 
-    init {
-        mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as Crop
-            mListener?.onCropListInteraction(item)
-        }
+    private val mOnClickListener: View.OnClickListener = View.OnClickListener { v ->
+        val item = v.tag as Crop
+        mListener?.onCropListInteraction(item)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -37,6 +36,7 @@ class MyCropAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        Log.d(TAG, "Binding crop: ${getItem(position).name}")
         val item = getItem(position)
 
         holder.cropType.setImageDrawable(
@@ -79,7 +79,6 @@ class CropDiffCallback : DiffUtil.ItemCallback<Crop>() {
     }
 
     override fun areContentsTheSame(oldItem: Crop, newItem: Crop): Boolean {
-        // TODO : implement .equals() for Crop
         return oldItem == newItem // Use data class equals for deep comparison
     }
 }

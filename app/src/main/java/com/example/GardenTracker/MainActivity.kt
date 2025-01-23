@@ -498,7 +498,7 @@ class MainActivity :
             val index = mSavedCrops.indexOf(this)
             mSavedCrops[index] = editCrop
         }
-        CropListViewModel.cropList.value = mSavedCrops
+        CropListViewModel.cropList.value = ArrayList(mSavedCrops)
 
         // Update CropStatusViewModel
         CropStatusViewModel.waterHours.value = editCrop.waterHoursFromString()
