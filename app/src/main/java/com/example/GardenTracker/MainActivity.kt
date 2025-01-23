@@ -466,7 +466,7 @@ class MainActivity :
         dbg.insertCrop(newCrop)
 
         // Update Crop list vew model
-        CropListViewModel.cropList.value = mSavedCrops
+        CropListViewModel.cropList.value = ArrayList(mSavedCrops)
     }
 
     override fun onCropListInteraction(item: Crop) {

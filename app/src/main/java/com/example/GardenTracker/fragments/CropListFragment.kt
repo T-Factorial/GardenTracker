@@ -75,6 +75,7 @@ class CropListFragment : Fragment() {
 
         // Observe crop list
         CropListViewModel.cropList.observe(viewLifecycleOwner) { updatedList ->
+            Log.d(TAG, "Crop list updated: ${updatedList.size} items")
             mAdapter.submitList(updatedList)
         }
 
