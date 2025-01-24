@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import com.example.GardenTracker.executor.ioThread
 import com.example.GardenTracker.model.Crop
+import com.example.GardenTracker.model.Memory
 import com.example.GardenTracker.model.Note
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
@@ -18,16 +19,19 @@ class DatabaseGateway constructor (context: Context) {
     companion object {
         private lateinit var cropDao: CropDao
         private lateinit var noteDao: NoteDao
+        private lateinit var memoryDao: MemoryDao
     }
 
     val TAG = "DATABASE_GATEWAY"
 
     private var gdb: GardenDatabase = GardenDatabase.getInstance(context)
     private var ndb: NoteDatabase = NoteDatabase.getInstance(context)
+    private var mdb: MemoryDatabase = MemoryDatabase.getInstance(context)
 
     init {
         cropDao = gdb.cropDao()
         noteDao = ndb.noteDao()
+        memoryDao = mdb.memoryDao()
         if (gdb.isOpen) {
             Log.d(TAG, "Garden Database open and ready for use.")
         } else {
@@ -37,6 +41,11 @@ class DatabaseGateway constructor (context: Context) {
             Log.d(TAG, "Note Database open and ready for use.")
         } else {
             Log.e(TAG, "Failed to open Note Database")
+        }
+        if (mdb.isOpen) {
+            Log.d(TAG, "Memory Database open and ready for use.")
+        } else {
+            Log.e(TAG, "Failed to open Memory Database")
         }
     }
 
@@ -535,5 +544,29 @@ class DatabaseGateway constructor (context: Context) {
 
     /*****************************************************
      * End Note Dao
+     *****************************************************/
+
+    /*****************************************************
+     * Begin Memory Dao
+     *****************************************************/
+
+    fun getMemoriesForCrop(cropId: Int): List<Memory> {
+        return memoryDao.getMemoriesForCrop(cropId)
+    }
+
+    fun insertMemory(memory: Memory) {
+        memoryDao.insertMemory(memory)
+    }
+
+    fun deleteMemory(memory: Memory) {
+        memoryDao.deleteMemory(memory)
+    }
+
+    fun deleteMemoriesByCrop(cropId: Int) {
+        memoryDao.deleteMemoriesByCrop(cropId)
+    }
+
+    /*****************************************************
+     * End Memory Dao
      *****************************************************/
 }

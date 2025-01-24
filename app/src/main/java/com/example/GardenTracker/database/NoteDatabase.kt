@@ -9,14 +9,18 @@ import com.example.GardenTracker.model.Note
 
 // See: https://gist.github.com/florina-muntenescu/697e543652b03d3d2a06703f5d6b44b5
 
-@Database(entities = arrayOf(Note::class), version = 1, exportSchema = false)
+@Database(
+    entities = [Note::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class NoteDatabase() : RoomDatabase() {
 
     abstract fun noteDao(): NoteDao
 
     companion object {
 
-        val DATABASE_NAME : String = "note-database"
+        private const val DATABASE_NAME : String = "note-database"
 
         @Volatile private var INSTANCE: NoteDatabase? = null
 
