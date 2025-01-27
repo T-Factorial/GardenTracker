@@ -7,24 +7,25 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.GardenTracker.model.Crop
+import com.example.GardenTracker.model.Memory
 import com.example.GardenTracker.model.Note
 
-// See: https://gist.github.com/florina-muntenescu/697e543652b03d3d2a06703f5d6b44b5
-
 @Database(
-    entities = [Crop::class],
-    version = 6,
+    entities = [Crop::class, Memory::class, Note::class],
+    version = 7, // Increment version
     exportSchema = false
 )
-abstract class GardenDatabase() : RoomDatabase() {
+abstract class GardenDatabase : RoomDatabase() {
 
     abstract fun cropDao(): CropDao
+    abstract fun memoryDao(): MemoryDao
+    abstract fun noteDao(): NoteDao
 
     companion object {
+        private const val DATABASE_NAME: String = "garden-database"
 
-        private const val DATABASE_NAME : String = "garden-database"
-
-        @Volatile private var INSTANCE: GardenDatabase? = null
+        @Volatile
+        private var INSTANCE: GardenDatabase? = null
 
         fun getInstance(context: Context): GardenDatabase =
             INSTANCE ?: synchronized(this) {
@@ -32,14 +33,11 @@ abstract class GardenDatabase() : RoomDatabase() {
             }
 
         private fun buildDatabase(context: Context) =
-            Room.databaseBuilder(context.applicationContext,
-                GardenDatabase::class.java, DATABASE_NAME)
-                .addCallback(object : Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-                        // Populate database on new thread
-                    }
-                }).fallbackToDestructiveMigration().build()
-
+            Room.databaseBuilder(
+                context.applicationContext,
+                GardenDatabase::class.java, DATABASE_NAME
+            )
+                .fallbackToDestructiveMigration()
+                .build()
     }
 }

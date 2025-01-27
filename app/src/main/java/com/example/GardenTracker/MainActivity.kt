@@ -24,7 +24,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -186,8 +185,7 @@ class MainActivity :
 
         Log.d(TAG,"onStop closing databases...")
         // Close databases
-        dbg.closeCropDb()
-        dbg.closeNoteDb()
+        dbg.closeDb()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -536,10 +534,17 @@ class MainActivity :
         mSavedCrops.remove(crop)
 
         // Remove crop notes from database
-        val notes = dbg.getNotesByCrop(crop.name)
+        val notes = dbg.getNotesForCrop(crop.name)
         notes?.forEach {
             dbg.deleteNote(it)
             Log.d(TAG, "Deleted note: $it")
+        }
+
+        // Remove crop memories from database
+        val memories = dbg.getMemoriesForCrop(crop.id)
+        memories?.forEach {
+            dbg.deleteMemory(it)
+            Log.d(TAG, "Deleted memories: $it")
         }
 
         // Remove crop from database
@@ -562,7 +567,7 @@ class MainActivity :
             bundleOf(
                 Pair(CROP_NAME, crop.name),
                 Pair(CROP_TYPE, crop.type),
-                Pair(CROP_NOTES, dbg.getNotesByCrop(crop.name))
+                Pair(CROP_NOTES, dbg.getNotesForCrop(crop.name))
             )
         )
     }
@@ -683,7 +688,7 @@ class MainActivity :
                 bundleOf(
                     Pair(CROP_NAME, crop?.name),
                     Pair(CROP_TYPE, crop?.type),
-                    Pair(CROP_NOTES, crop?.name?.let { dbg.getNotesByCrop(it) })
+                    Pair(CROP_NOTES, crop?.name?.let { dbg.getNotesForCrop(it) })
                 )
 
             )
@@ -716,7 +721,7 @@ class MainActivity :
                 Pair(CROP_NAME, savedCrop!!.name),
                 Pair(CROP_TYPE, savedCrop.type),
                 when(mAllNotes) {
-                    false -> Pair(CROP_NOTES, dbg.getNotesByCrop(savedCrop.name))
+                    false -> Pair(CROP_NOTES, dbg.getNotesForCrop(savedCrop.name))
                     true -> Pair(CROP_NOTES, getAllNotes())
                 }
             )

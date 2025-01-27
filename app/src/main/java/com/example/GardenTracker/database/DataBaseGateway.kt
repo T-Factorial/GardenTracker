@@ -25,27 +25,15 @@ class DatabaseGateway constructor (context: Context) {
     val TAG = "DATABASE_GATEWAY"
 
     private var gdb: GardenDatabase = GardenDatabase.getInstance(context)
-    private var ndb: NoteDatabase = NoteDatabase.getInstance(context)
-    private var mdb: MemoryDatabase = MemoryDatabase.getInstance(context)
 
     init {
         cropDao = gdb.cropDao()
-        noteDao = ndb.noteDao()
-        memoryDao = mdb.memoryDao()
+        noteDao = gdb.noteDao()
+        memoryDao = gdb.memoryDao()
         if (gdb.isOpen) {
             Log.d(TAG, "Garden Database open and ready for use.")
         } else {
             Log.e(TAG, "Failed to open Garden Database")
-        }
-        if (ndb.isOpen) {
-            Log.d(TAG, "Note Database open and ready for use.")
-        } else {
-            Log.e(TAG, "Failed to open Note Database")
-        }
-        if (mdb.isOpen) {
-            Log.d(TAG, "Memory Database open and ready for use.")
-        } else {
-            Log.e(TAG, "Failed to open Memory Database")
         }
     }
 
@@ -53,17 +41,10 @@ class DatabaseGateway constructor (context: Context) {
      * Begin Crop Dao
      *****************************************************/
 
-    fun closeCropDb() {
+    fun closeDb() {
         if (gdb.isOpen) {
             gdb.close()
-            Log.d(TAG, "Crop database closed.")
-        }
-    }
-
-    fun closeNoteDb() {
-        if (ndb.isOpen) {
-            ndb.close()
-            Log.d(TAG, "Note database closed.")
+            Log.d(TAG, "Garden database closed.")
         }
     }
 
@@ -386,7 +367,7 @@ class DatabaseGateway constructor (context: Context) {
         }
     }
 
-    fun getNotesByCrop(name: String) : List<Note>? {
+    fun getNotesForCrop(name: String) : List<Note>? {
         Log.d(TAG, "Retrieving notes from database by crop: $name")
         var list: List<Note>? = null
         try {
