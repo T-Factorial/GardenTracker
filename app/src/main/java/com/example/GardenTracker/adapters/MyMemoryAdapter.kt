@@ -7,10 +7,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.GardenTracker.R
+import com.example.GardenTracker.fragments.CropFragment
 import com.example.GardenTracker.fragments.MemoriesFragment
 import kotlinx.android.synthetic.main.memory_image_view.view.*
 
-class MyMemoryAdapter(private val mValues: ArrayList<Bitmap>, private val mListener: MemoriesFragment.OnMemoryListInteractionListener)
+class MyMemoryAdapter(private val mValues: ArrayList<Bitmap>, private val mListener: CropFragment.OnCropStatusListener)
     : RecyclerView.Adapter<MyMemoryAdapter.ViewHolder>() {
 
     private val mOnClickListener: View.OnClickListener = View.OnClickListener { v ->

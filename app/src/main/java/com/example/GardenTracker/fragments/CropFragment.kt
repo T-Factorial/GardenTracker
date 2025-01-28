@@ -3,9 +3,13 @@ package com.example.GardenTracker.fragments
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -24,6 +28,9 @@ import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.adapters.MyMemoryAdapter
 import com.example.GardenTracker.R
 import com.example.GardenTracker.model.CropStatusViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.IOException
 
 private const val STATUS_CROP = "status_crop"
 private const val EDIT_CROP = "edit-crop"
@@ -165,18 +172,15 @@ class CropFragment : Fragment() {
 
         // Setup Memory RecyclerView
         mRecyclerView = view.findViewById(R.id.crop_memories)
-        with(mRecyclerView) {
-            layoutManager = GridLayoutManager(context, 3)
-            adapter = listener?.let {
-                MyMemoryAdapter(
-                    mCropMemories,
-                    it
-                )
-            }
-            mAdapter = adapter as MyMemoryAdapter
+        mRecyclerView.layoutManager = GridLayoutManager(context, 3)
 
+        // Asynchronously load bitmaps and update the adapter
+        lifecycleScope.launch {
+            val bitmaps = loadMemories(mStatusCrop)
+            mAdapter = listener?.let { MyMemoryAdapter(bitmaps, it) }!!
+            mRecyclerView.adapter = mAdapter
+            mAdapter.notifyDataSetChanged()
         }
-        mAdapter.notifyDataSetChanged()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -254,6 +258,37 @@ class CropFragment : Fragment() {
             else -> return ""
         }
     }
+
+    private suspend fun loadMemories(crop: Crop): ArrayList<Bitmap> = withContext(Dispatchers.IO) {
+        val files = crop.memoriesFromString()
+        val bitmaps = ArrayList<Bitmap>()
+
+        val resolver = requireContext().contentResolver
+        val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        } else {
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        }
+
+        files.forEach { fileName ->
+            try {
+                val bmpUri = Uri.withAppendedPath(imageCollection, fileName)
+                resolver.openInputStream(bmpUri).use { stream ->
+                    val bitmap = BitmapFactory.decodeStream(stream)
+                    if (bitmap != null) {
+                        bitmaps.add(bitmap)
+                    } else {
+                        Log.e(TAG, "Failed to decode image: $fileName")
+                    }
+                }
+            } catch (e: IOException) {
+                Log.e(TAG, "Error loading image $fileName: ${e.localizedMessage}")
+            }
+        }
+
+        return@withContext bitmaps
+    }
+
 
     interface OnCropStatusListener {
         fun waterCrop(crop: Crop)

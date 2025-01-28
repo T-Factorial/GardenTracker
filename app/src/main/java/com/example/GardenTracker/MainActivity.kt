@@ -32,10 +32,7 @@ import com.example.GardenTracker.fragments.CropFragment
 import com.example.GardenTracker.fragments.CropListFragment
 import com.example.GardenTracker.fragments.NoteFragment
 import com.example.GardenTracker.fragments.NotesFragment
-import com.example.GardenTracker.model.Crop
-import com.example.GardenTracker.model.CropListViewModel
-import com.example.GardenTracker.model.Note
-import com.example.GardenTracker.model.CropStatusViewModel
+import com.example.GardenTracker.model.*
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.parcel.Parcelize
 import java.io.ByteArrayOutputStream
@@ -43,6 +40,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val EDIT_CROP = "edit-crop"
 private const val ARG_CROP_LIST = "crop-list"
@@ -338,53 +337,6 @@ class MainActivity :
 
     }
 
-    private fun loadBitmaps(crop: Crop) : ArrayList<Bitmap> {
-
-        val files : List<String> = crop.memoriesFromString()
-        val bmps = java.util.ArrayList<Bitmap>()
-
-        // Get resolver
-        val resolver = applicationContext.contentResolver
-
-        // Get the primary shared external image storage
-        val imageCollection =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                MediaStore.Images.Media.getContentUri(
-                    MediaStore.VOLUME_EXTERNAL_PRIMARY
-                )
-            } else {
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            }
-
-        // Load each bitmap from filename and add to bitmap list
-        files.forEach {
-            var bmp : Bitmap? = null
-
-            val bmpUri : Uri = Uri.withAppendedPath(
-                imageCollection,
-                it // filename
-            )
-
-            resolver.openInputStream(bmpUri).use { stream ->
-                try {
-                    bmp = BitmapFactory.decodeStream(stream)
-                    stream!!.close()
-                } catch (e: IOException) {
-                    Log.e(TAG, "Error opening input stream...")
-                }
-            }
-
-            if (bmp != null) {
-                Log.d(TAG, "Successfully loaded image: $it")
-                bmps.add(bmp!!)
-            } else {
-                Log.e(TAG, "Failed to load image $it...")
-            }
-        }
-
-        return bmps
-    }
-
     /*****************************************************************************************
      * BEGIN NAVIGATION OVERRIDES
      ****************************************************************************************/
@@ -473,8 +425,7 @@ class MainActivity :
             R.id.action_cropListFragment_to_cropFragment,
             bundleOf(
                 Pair(STATUS_CROP, item),
-                Pair(ARG_DRAWABLES, mDrawableResources),
-                Pair(CROP_MEMORIES, loadBitmaps(item))
+                Pair(ARG_DRAWABLES, mDrawableResources)
             )
         )
     }
@@ -605,13 +556,13 @@ class MainActivity :
             R.id.action_cropListFragment_to_cropFragment,
             bundleOf(
                 Pair(STATUS_CROP, crop),
-                Pair(ARG_DRAWABLES, mDrawableResources),
-                Pair(CROP_MEMORIES, loadBitmaps(crop))
+                Pair(ARG_DRAWABLES, mDrawableResources)
             )
         )
 
         // Save updated crop list
         dbg.updateCrop(crop)
+        dbg.insertMemory(Memory(cropId = crop.id, filePath = filename))
     }
     /**************************************************************************************
      * END CROP STATUS OVERRIDES
