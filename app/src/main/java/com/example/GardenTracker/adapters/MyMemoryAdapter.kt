@@ -8,7 +8,6 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.GardenTracker.R
 import com.example.GardenTracker.fragments.CropFragment
-import com.example.GardenTracker.fragments.MemoriesFragment
 import kotlinx.android.synthetic.main.memory_image_view.view.*
 
 class MyMemoryAdapter(private val mValues: ArrayList<Bitmap>, private val mListener: CropFragment.OnCropStatusListener)

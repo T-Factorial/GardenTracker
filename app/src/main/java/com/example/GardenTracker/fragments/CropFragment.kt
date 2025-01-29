@@ -28,8 +28,7 @@ import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.adapters.MyMemoryAdapter
 import com.example.GardenTracker.R
 import com.example.GardenTracker.model.CropStatusViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.IOException
 
 private const val STATUS_CROP = "status_crop"
@@ -49,6 +48,8 @@ private const val CAMERA_REQUEST = 0
 class CropFragment : Fragment() {
 
     private val TAG = "CROP_FRAGMENT"
+
+    private val fragmentScope = CoroutineScope(Dispatchers.Main)
 
     private lateinit var mStatusCrop : Crop
     private lateinit var mDrawables : ArrayList<Drawable>
@@ -175,9 +176,9 @@ class CropFragment : Fragment() {
         mRecyclerView.layoutManager = GridLayoutManager(context, 3)
 
         // Asynchronously load bitmaps and update the adapter
-        lifecycleScope.launch {
-            val bitmaps = loadMemories(mStatusCrop)
-            mAdapter = listener?.let { MyMemoryAdapter(bitmaps, it) }!!
+        fragmentScope.launch {
+            val memories = loadMemories(mStatusCrop)
+            mAdapter = MyMemoryAdapter(memories, listener!!)
             mRecyclerView.adapter = mAdapter
             mAdapter.notifyDataSetChanged()
         }
@@ -227,6 +228,11 @@ class CropFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        fragmentScope.cancel() // Avoid memory leaks
     }
 
     private fun hourToString(hour: Int): String {
