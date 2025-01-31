@@ -1,5 +1,6 @@
 package com.example.GardenTracker.fragments
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -15,10 +16,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
@@ -66,8 +64,13 @@ class CropFragment : Fragment() {
         arguments?.let {
             Log.d(TAG, "Unpacking savedInstanceState arguments.")
             mStatusCrop = it.getSerializable(STATUS_CROP) as Crop
-            mDrawables = it.getSerializable(ARG_DRAWABLES) as ArrayList<Drawable>
-            mCropMemories = it.getSerializable(CROP_MEMORIES) as ArrayList<Bitmap>
+            val drawableResIds = it.getIntegerArrayList(ARG_DRAWABLES)
+
+            if (drawableResIds != null) {
+                mDrawables = ArrayList(drawableResIds.map { resId ->
+                    requireContext().getDrawable(resId)!!
+                })
+            }
         }
     }
 
@@ -187,19 +190,21 @@ class CropFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == CAMERA_REQUEST) {
-            if (data != null) {
-                Log.d(TAG, "Data exists to unpack")
-                if (data.extras != null) {
-                    val extras = data.extras
-                    if (extras?.get("data") != null) {
-                        Log.d(TAG, "Successfully retrieved data.")
-                        val image : Bitmap = extras.get("data") as Bitmap
-                        //mCropMemories.add(image)
-                        listener?.saveNewMemory(mStatusCrop, image)
-                        mAdapter.notifyDataSetChanged()
-                    }
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            if (data != null && data.extras != null) {
+                val extras = data.extras
+                if (extras?.get("data") != null) {
+                    Log.d(TAG, "Successfully retrieved data from camera.")
+                    val image: Bitmap = extras.get("data") as Bitmap
+                    listener?.saveNewMemory(mStatusCrop, image)
+                    mAdapter.notifyDataSetChanged()
+                } else {
+                    Log.e(TAG, "Camera returned no data.")
+                    Toast.makeText(context, "Error capturing image", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                Log.e(TAG, "Camera data is null.")
+                Toast.makeText(context, "No image captured", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -309,7 +314,7 @@ class CropFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance(param1: ArrayList<Crop>, param2: ArrayList<Drawable>) =
+        fun newInstance(param1: ArrayList<Crop>, param2: ArrayList<Int>) =
             CropListFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(STATUS_CROP, param1)

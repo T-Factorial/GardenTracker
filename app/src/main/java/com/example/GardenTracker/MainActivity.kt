@@ -1,10 +1,12 @@
 package com.example.GardenTracker
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
@@ -69,7 +71,6 @@ class MainActivity :
 
     private val TAG = "MAIN_ACTIVITY"
 
-    private var iCapture = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
     private lateinit var iCropListFrag: Intent
     private lateinit var iPendingCropList: PendingIntent
 
@@ -108,6 +109,8 @@ class MainActivity :
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         iPendingCropList = PendingIntent.getActivity(this, 0, iCropListFrag, 0)
+
+        requestCameraPermission() // Get camera permissions
 
         // Create Notification Channels
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -195,6 +198,31 @@ class MainActivity :
         outState.putSerializable(ARG_CROP_LIST, mSavedCrops)
 
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == CAMERA_REQUEST) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Camera permission granted.")
+            } else {
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun requestCameraPermission() {
+        Log.d(TAG, "Requesting camera permissions.")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_REQUEST)
+            }
+        }
     }
 
     private fun timeUpdateCrops() {
@@ -535,7 +563,15 @@ class MainActivity :
 
     override fun startCameraActivity() {
         Log.d(TAG, "Starting camera activity.")
-        startActivityForResult(iCapture, CAMERA_REQUEST)
+
+        val iCapture = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+        if (iCapture.resolveActivity(packageManager) != null) {
+            startActivityForResult(iCapture, CAMERA_REQUEST)
+        } else {
+            Log.e(TAG, "No camera app found.")
+            Toast.makeText(this, "Camera not available", Toast.LENGTH_SHORT).show()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
