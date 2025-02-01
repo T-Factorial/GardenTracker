@@ -88,6 +88,10 @@ class MainActivity :
     private lateinit var mNavController: NavController
     private lateinit var mDrawableResources: ArrayList<Drawable>
 
+    private val mDrawableResIds = arrayListOf(
+        R.drawable.ic_launcher_foreground
+    )
+
     @Parcelize
     class DateTimeHolder() : Parcelable {
         var currYear: Int = GregorianCalendar.getInstance(Locale("en_US@calendar=english"))
@@ -395,7 +399,7 @@ class MainActivity :
                 mNavController.navigate(
                     R.id.action_homeFragment_to_cropFragment,
                     bundleOf(
-                        Pair(ARG_DRAWABLES, mDrawableResources)
+                        Pair(ARG_DRAWABLES, mDrawableResIds)
                     )
                 )
                 mDrawerLayout.closeDrawer(GravityCompat.START)
@@ -453,7 +457,7 @@ class MainActivity :
             R.id.action_cropListFragment_to_cropFragment,
             bundleOf(
                 Pair(STATUS_CROP, item),
-                Pair(ARG_DRAWABLES, mDrawableResources)
+                Pair(ARG_DRAWABLES, mDrawableResIds)
             )
         )
     }
@@ -534,7 +538,7 @@ class MainActivity :
             R.id.action_cropFragment_to_cropListFragment,
             bundleOf(
                 Pair(ARG_CROP_LIST, mSavedCrops),
-                Pair(ARG_DRAWABLES, mDrawableResources)
+                Pair(ARG_DRAWABLES, mDrawableResIds)
             )
         )
     }
@@ -592,7 +596,7 @@ class MainActivity :
             R.id.action_cropListFragment_to_cropFragment,
             bundleOf(
                 Pair(STATUS_CROP, crop),
-                Pair(ARG_DRAWABLES, mDrawableResources)
+                Pair(ARG_DRAWABLES, mDrawableResIds)
             )
         )
 

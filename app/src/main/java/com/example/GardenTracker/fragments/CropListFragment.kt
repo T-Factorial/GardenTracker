@@ -28,7 +28,7 @@ class CropListFragment : Fragment() {
     private val TAG = "CROP_LIST_FRAGMENT"
 
     private var columnCount = 1
-    private lateinit var mDrawableResources: List<Drawable?>
+    private lateinit var mDrawables: List<Drawable?>
 
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mAdapter: MyCropAdapter
@@ -42,7 +42,13 @@ class CropListFragment : Fragment() {
         arguments?.let {
             Log.d(TAG, "Unpacking savedInstanceState arguments.")
             columnCount = it.getInt(ARG_COLUMN_COUNT)
-            mDrawableResources = it.getSerializable(ARG_DRAWABLES) as List<Drawable?>
+            val drawableResIds = it.getIntegerArrayList(ARG_DRAWABLES)
+
+            if (drawableResIds != null) {
+                mDrawables = ArrayList(drawableResIds.map { resId ->
+                    requireContext().getDrawable(resId)!!
+                })
+            }
         }
     }
 
@@ -65,7 +71,7 @@ class CropListFragment : Fragment() {
                 else -> GridLayoutManager(context, columnCount)
             }
             adapter = MyCropAdapter(
-                mDrawableResources,
+                mDrawables,
                 listener
             )
             mAdapter = adapter as MyCropAdapter
