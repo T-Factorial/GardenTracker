@@ -1,10 +1,7 @@
 package com.example.GardenTracker
 
 import android.Manifest
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -91,6 +88,8 @@ class MainActivity :
     private val mDrawableResIds = arrayListOf(
         R.drawable.ic_launcher_foreground
     )
+
+    private var mCurrentCrop: Crop? = null // store the active crop
 
     @Parcelize
     class DateTimeHolder() : Parcelable {
@@ -221,6 +220,56 @@ class MainActivity :
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        Log.d(TAG, "Activity result acknowledged.")
+
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            if (data != null && data.extras != null) {
+                val extras = data.extras
+                if (extras?.get("data") != null) {
+                    Log.d(TAG, "Successfully retrieved data from camera.")
+
+                    val image: Bitmap = extras.get("data") as Bitmap
+
+                    // Ensure a crop was being edited when the photo was taken
+                    if (mCurrentCrop != null) {
+                        Log.d(TAG, "Saving image for crop: ${mCurrentCrop!!.name}")
+
+                        // Generate filename for the new memory
+                        val filename = "${mCurrentCrop!!.name}_mem_${mCurrentCrop!!.memoriesFromString().size + 1}.jpg"
+
+                        // Save image to database
+                        saveBitmap(image, filename)
+                        mCurrentCrop!!.addMemory(filename)
+                        dbg.updateCrop(mCurrentCrop!!)
+                        dbg.insertMemory(Memory(cropId = mCurrentCrop!!.id, filePath = filename))
+
+                        // Reload CropFragment with the updated crop
+                        val bundle = bundleOf(
+                            Pair(STATUS_CROP, mCurrentCrop),
+                            Pair(ARG_DRAWABLES, mDrawableResIds)
+                        )
+                        mNavController.navigate(R.id.cropFragment, bundle)
+
+                    } else {
+                        Log.e(TAG, "No crop selected while capturing memory.")
+                        Toast.makeText(this, "Error: No crop selected.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.e(TAG, "Camera returned no data.")
+                    Toast.makeText(this, "Error capturing image", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Log.e(TAG, "Camera data is null.")
+                Toast.makeText(this, "No image captured", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
     private fun requestCameraPermission() {
         Log.d(TAG, "Requesting camera permissions.")
@@ -575,7 +624,8 @@ class MainActivity :
         )
     }
 
-    override fun startCameraActivity() {
+    override fun startCameraActivity(crop: Crop) {
+        mCurrentCrop = crop
         Log.d(TAG, "Starting camera activity.")
 
         val iCapture = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -586,33 +636,6 @@ class MainActivity :
             Log.e(TAG, "No camera app found.")
             Toast.makeText(this, "Camera not available", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    override fun saveNewMemory(crop: Crop, memory: Bitmap) {
-
-        // Update crops memories
-        val memoriesSize = crop.memoriesFromString().size + 1
-        val filename = crop.name + "_mem_" + memoriesSize + ".jpg"
-
-        // Save bitmap to file
-        saveBitmap(memory, filename)
-
-        crop.addMemory(filename)
-
-        // Renavigate to Crop Status page with new memory
-        onSupportNavigateUp()
-        mNavController.navigate(
-            R.id.action_cropListFragment_to_cropFragment,
-            bundleOf(
-                Pair(STATUS_CROP, crop),
-                Pair(ARG_DRAWABLES, mDrawableResIds)
-            )
-        )
-
-        // Save updated crop list
-        dbg.updateCrop(crop)
-        dbg.insertMemory(Memory(cropId = crop.id, filePath = filename))
     }
     /**************************************************************************************
      * END CROP STATUS OVERRIDES

@@ -173,7 +173,7 @@ class CropFragment : Fragment() {
         }
 
         captureButton.setOnClickListener {
-            listener?.startCameraActivity()
+            listener?.startCameraActivity(mStatusCrop)
         }
 
         // Setup Memory RecyclerView
@@ -193,29 +193,6 @@ class CropFragment : Fragment() {
             mAdapter.notifyDataSetChanged()
 
             Log.d(TAG, "Adapter set with ${mCropMemories.size} memories.")
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        Log.d(TAG, "Activity result acknowledged.")
-        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-            if (data != null && data.extras != null) {
-                val extras = data.extras
-                if (extras?.get("data") != null) {
-                    Log.d(TAG, "Successfully retrieved data from camera.")
-                    val image: Bitmap = extras.get("data") as Bitmap
-                    listener?.saveNewMemory(mStatusCrop, image)
-                    mAdapter.notifyDataSetChanged()
-                } else {
-                    Log.e(TAG, "Camera returned no data.")
-                    Toast.makeText(context, "Error capturing image", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Log.e(TAG, "Camera data is null.")
-                Toast.makeText(context, "No image captured", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 
@@ -317,8 +294,7 @@ class CropFragment : Fragment() {
         fun editCrop(crop: Crop)
         fun goToNotes(crop: Crop)
         fun onMemorySelect(bm: Bitmap)
-        fun startCameraActivity()
-        fun saveNewMemory(crop: Crop, memory: Bitmap)
+        fun startCameraActivity(crop: Crop)
     }
 
     companion object {
