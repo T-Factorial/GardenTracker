@@ -75,7 +75,6 @@ class CropListFragment : Fragment() {
                 listener
             )
             mAdapter = adapter as MyCropAdapter
-
         }
         mAdapter.notifyDataSetChanged()
 

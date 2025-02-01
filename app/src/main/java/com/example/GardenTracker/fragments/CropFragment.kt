@@ -20,11 +20,13 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.GardenTracker.CropDialog
 import com.example.GardenTracker.model.Crop
 import com.example.GardenTracker.adapters.MyMemoryAdapter
 import com.example.GardenTracker.R
+import com.example.GardenTracker.adapters.MyCropAdapter
 import com.example.GardenTracker.model.CropStatusViewModel
 import kotlinx.coroutines.*
 import java.io.IOException
@@ -180,16 +182,24 @@ class CropFragment : Fragment() {
 
         // Asynchronously load bitmaps and update the adapter
         fragmentScope.launch {
-            val memories = loadMemories(mStatusCrop)
-            mAdapter = MyMemoryAdapter(memories, listener!!)
+            Log.d(TAG, "Loading crop ${mStatusCrop.name}'s memories...")
+
+            val memories = loadMemories(mStatusCrop) // Wait for memories to load
+            mCropMemories = memories // Initialize mCropMemories properly
+
+            // Now attach the adapter *after* memories are loaded
+            mAdapter = MyMemoryAdapter(mCropMemories, listener!!)
             mRecyclerView.adapter = mAdapter
             mAdapter.notifyDataSetChanged()
+
+            Log.d(TAG, "Adapter set with ${mCropMemories.size} memories.")
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        Log.d(TAG, "Activity result acknowledged.")
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             if (data != null && data.extras != null) {
                 val extras = data.extras

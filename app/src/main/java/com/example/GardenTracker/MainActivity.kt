@@ -214,18 +214,28 @@ class MainActivity :
         if (requestCode == CAMERA_REQUEST) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Camera permission granted.")
+                Toast.makeText(this, "Camera permission granted!", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "Camera permission denied.")
+                Toast.makeText(this, "Camera permission denied. Please enable it in settings.", Toast.LENGTH_LONG).show()
             }
         }
     }
 
     private fun requestCameraPermission() {
         Log.d(TAG, "Requesting camera permissions.")
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_REQUEST)
+            if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Camera permission already granted.")
+                return
             }
+
+            if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                Toast.makeText(this, "Camera permission is needed to take photos.", Toast.LENGTH_LONG).show()
+            }
+
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_REQUEST)
         }
     }
 
