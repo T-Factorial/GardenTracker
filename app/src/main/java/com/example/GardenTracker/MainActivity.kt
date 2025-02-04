@@ -189,8 +189,12 @@ class MainActivity :
         super.onStop()
 
         Log.d(TAG,"onStop closing databases...")
-        // Close databases
-        dbg.closeDb()
+
+        if (!isChangingConfigurations) {
+            dbg.closeDb()
+        } else {
+            Log.d(TAG, "Configuration change detected, keeping database open.")
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -584,7 +588,7 @@ class MainActivity :
 
         // Remove crop memories from database
         val memories = dbg.getMemoriesForCrop(crop.id)
-        memories?.forEach {
+        memories.forEach {
             dbg.deleteMemory(it)
             Log.d(TAG, "Deleted memories: $it")
         }

@@ -136,12 +136,17 @@ class CropFragment : Fragment() {
         // Set up with crop data
         titleBox.append(mStatusCrop.name)
         Log.d(TAG, "Updating crop logo.")
-        when(mStatusCrop.type) {
-            "Flower" -> cropType.setImageDrawable(mDrawables[0])
-            "Herb" -> cropType.setImageDrawable(mDrawables[1])
-            "Fruit" -> cropType.setImageDrawable(mDrawables[2])
-            "Vegetable" -> cropType.setImageDrawable(mDrawables[3])
-            else -> cropType.setImageDrawable(mDrawables[0])
+        // Remove conditional when real drawables are available
+        if (mDrawables.size > 1) {
+            when (mStatusCrop.type) {
+                "Flower" -> cropType.setImageDrawable(mDrawables[0])
+                "Herb" -> cropType.setImageDrawable(mDrawables[1])
+                "Fruit" -> cropType.setImageDrawable(mDrawables[2])
+                "Vegetable" -> cropType.setImageDrawable(mDrawables[3])
+                else -> cropType.setImageDrawable(mDrawables[0])
+            }
+        } else {
+            cropType.setImageDrawable(mDrawables[0])
         }
         cropLabel.text = mStatusCrop.name // Might not work
         harvestProgress.progress = mStatusCrop.harvestProgress()

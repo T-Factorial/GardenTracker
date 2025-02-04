@@ -39,15 +39,20 @@ class MyCropAdapter(
         Log.d(TAG, "Binding crop: ${getItem(position).name}")
         val item = getItem(position)
 
-        holder.cropType.setImageDrawable(
-            when (item.type) {
-                "Flower" -> drawables[0]
-                "Herb" -> drawables[1]
-                "Fruit" -> drawables[2]
-                "Vegetable" -> drawables[3]
-                else -> drawables[0]
-            }
-        )
+        // Remove conditional after real drawables are available
+        if (drawables.size > 1) {
+            holder.cropType.setImageDrawable(
+                when (item.type) {
+                    "Flower" -> drawables[0]
+                    "Herb" -> drawables[1]
+                    "Fruit" -> drawables[2]
+                    "Vegetable" -> drawables[3]
+                    else -> drawables[0]
+                }
+            )
+        } else{
+            holder.cropType.setImageDrawable(drawables[0])
+        }
         holder.cropName.text = item.name
         holder.timeToHarvest.progress = item.harvestProgress()
 
