@@ -54,7 +54,6 @@ class MyCropAdapter(
             holder.cropType.setImageDrawable(drawables[0])
         }
         holder.cropName.text = item.name
-        holder.timeToHarvest.progress = item.harvestProgress()
 
         if (item.needsWater) {
             holder.waterStatus.text = "Thirsty"
@@ -73,7 +72,6 @@ class MyCropAdapter(
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
         val cropType: ImageView = mView.crop_type
         val cropName: TextView = mView.crop_label
-        val timeToHarvest: ProgressBar = mView.time_to_harvest
         val waterStatus: TextView = mView.water_status
     }
 }

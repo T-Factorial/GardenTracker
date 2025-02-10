@@ -25,15 +25,6 @@
         android:dropDownWidth="wrap_content"
         android:entries="@array/crop_type_spinner_list" />
 
-    <EditText
-        android:id="@+id/crop_growth_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:ems="10"
-        android:hint="Expected growth time (number of days)"
-        android:inputType="number" />
-
     <Spinner
         android:id="@+id/water_hours_input"
         android:layout_width="match_parent"

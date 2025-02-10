@@ -18,9 +18,6 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_exit_anim" />
         <action
-            android:id="@+id/action_homeFragment_to_harvestFragment"
-            app:destination="@id/harvestFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
         <action
@@ -41,11 +38,6 @@
             android:id="@+id/action_cropListFragment_to_cropFragment"
             app:destination="@id/cropFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/harvestFragment"
-        android:name="com.example.GardenTracker.fragments.HarvestFragment"
-        android:label="fragment_harvest"
-        tools:layout="@layout/fragment_harvest" />
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.GardenTracker.fragments.SettingsFragment"

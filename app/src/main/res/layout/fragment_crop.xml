@@ -33,7 +33,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:text="TextView"
-                app:layout_constraintBottom_toTopOf="@id/time_to_harvest"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/crop_type"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -44,20 +43,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:text="@string/GrowthLabel"
-                app:layout_constraintEnd_toStartOf="@id/time_to_harvest"
+                app:layout_constraintBottom_toTopOf="@id/water_status_label"
                 app:layout_constraintStart_toEndOf="@id/crop_type"
-                app:layout_constraintTop_toBottomOf="@id/crop_label"
-                app:layout_constraintBottom_toTopOf="@id/water_status_label"/>
-
-            <ProgressBar
-                android:id="@+id/time_to_harvest"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                app:layout_constraintBottom_toTopOf="@id/water_status"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/growth_progress_label"
                 app:layout_constraintTop_toBottomOf="@id/crop_label" />
 
             <TextView
@@ -78,8 +65,7 @@
                 android:layout_margin="4dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/water_status_label"
-                app:layout_constraintTop_toBottomOf="@id/time_to_harvest" />
+                app:layout_constraintStart_toEndOf="@id/water_status_label" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

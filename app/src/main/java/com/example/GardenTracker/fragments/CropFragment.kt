@@ -91,7 +91,6 @@ class CropFragment : Fragment() {
         val titleBox: TextView = view.findViewById(R.id.crop_title)
         val cropType: ImageView = view.findViewById(R.id.crop_type)
         val cropLabel: TextView = view.findViewById(R.id.crop_label)
-        val harvestProgress: ProgressBar = view.findViewById(R.id.time_to_harvest)
         val waterStatus: TextView = view.findViewById(R.id.water_status_crop)
         val waterTimes: TextView = view.findViewById(R.id.watering_times)
 
@@ -115,7 +114,6 @@ class CropFragment : Fragment() {
             }
         }
         CropStatusViewModel.waterHours.observe(this, waterHoursObserver)
-
 
         // This block of code should immediately update the water status and water hours on the
         // crop status page
@@ -149,7 +147,6 @@ class CropFragment : Fragment() {
             cropType.setImageDrawable(mDrawables[0])
         }
         cropLabel.text = mStatusCrop.name // Might not work
-        harvestProgress.progress = mStatusCrop.harvestProgress()
 
         // Set button listeners
         waterButton.setOnClickListener {

@@ -43,7 +43,6 @@ class CropDialog : DialogFragment() {
             val view = inflater.inflate(R.layout.fragment_crop_dialog, null)
             val nameInput: EditText = view.findViewById(R.id.crop_name_input)
             val typeInput: Spinner = view.findViewById(R.id.crop_type_input)
-            val harvestInput: EditText = view.findViewById(R.id.crop_growth_input)
             val waterLabel: TextView = view.findViewById(R.id.waterHoursLabel)
             val waterInput: Spinner = view.findViewById(R.id.water_hours_input)
             val undoButton: Button = view.findViewById(R.id.undo_hour_button)
@@ -64,7 +63,6 @@ class CropDialog : DialogFragment() {
                     "Vegetable" -> typeInput.setSelection(3)
                     "Fruit" -> typeInput.setSelection(4)
                 }
-                harvestInput.setText("${mEditCrop!!.growthTime}")
                 waterHours = mEditCrop!!.waterHoursFromString() as MutableList<Int>
                 waterHours.forEach {
                     waterLabel.text = "${waterLabel.text}\n${intToTime(it)}"
@@ -143,7 +141,6 @@ class CropDialog : DialogFragment() {
                         var err = false
                         val name = nameInput.text.toString()
                         val type = typeInput.selectedItem.toString()
-                        val growth = harvestInput.text
 
                         if (name.isEmpty()) {
                             err = true
@@ -159,13 +156,6 @@ class CropDialog : DialogFragment() {
                                 "You did not select a crop type.", Toast.LENGTH_SHORT
                             ).show()
                         }
-                        if (growth.isEmpty()) {
-                            err = true
-                            Toast.makeText(
-                                context,
-                                "You did not enter a growth time.", Toast.LENGTH_SHORT
-                            ).show()
-                        }
                         if (waterHours.isEmpty()) {
                             err = true
                             Toast.makeText(
@@ -178,12 +168,10 @@ class CropDialog : DialogFragment() {
                             if (mEditCrop != null) {
                                 mEditCrop = mEditCrop!!.updateName(name)
                                 mEditCrop = mEditCrop!!.updateType(type)
-                                mEditCrop = mEditCrop!!.updateGrowthTime(growth.toString().toInt())
                                 mEditCrop = mEditCrop!!.updateWaterHours(waterHours)
                                 listener?.onEditDialogAccept(mEditCrop!!)
                             } else {
-                                var newCrop = Crop(name = name, type = type,
-                                    growthTime = growth.toString().toInt())
+                                var newCrop = Crop(name = name, type = type)
                                 newCrop = newCrop.updateWaterHours(waterHours)
                                 listener?.onAddDialogAccept(newCrop)
                             }

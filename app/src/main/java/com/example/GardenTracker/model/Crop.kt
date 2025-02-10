@@ -46,20 +46,12 @@ data class Crop(
     @ColumnInfo(name = "water_hours")
     val waterHours: String = "",
 
-    @ColumnInfo(name = "harvest_progress")
-    val growthProg: Int = 0,
-
     @ColumnInfo(name = "crop_memories")
     val memories: String = "",
 
     @ColumnInfo(name = "needs_water")
     val needsWater: Boolean = false,
 
-    @ColumnInfo(name = "harvest_day")
-    val harvestDay: Int = 0,
-
-    @ColumnInfo(name = "ready_to_harvest")
-    val readyToHarvest: Boolean = false
 ) : Serializable {
 
     // Utility Methods
@@ -69,12 +61,6 @@ data class Crop(
         val hours = waterHoursFromString()
         val newNeedsWater = hours.any { it <= currHour }
         return copy(needsWater = newNeedsWater)
-    }
-
-    fun harvestProgress(): Int {
-        val daysUntilHarvest = harvestDay - GregorianCalendar.getInstance(Locale("en_US@calendar=english")).get(Calendar.DAY_OF_YEAR)
-        val daysPassed = growthTime - daysUntilHarvest
-        return if (growthTime != 0) (daysPassed * 100 / growthTime) else 0
     }
 
     private fun waterHoursToString(hours: List<Int>): String =

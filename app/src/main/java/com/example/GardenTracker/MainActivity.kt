@@ -467,12 +467,6 @@ class MainActivity :
                 )
                 mDrawerLayout.closeDrawer(GravityCompat.START)
             }
-            R.id.harvests_item -> {
-                onSupportNavigateUp()
-                mNavController
-                    .navigate(R.id.action_homeFragment_to_harvestFragment)
-                mDrawerLayout.closeDrawer(GravityCompat.START)
-            }
             R.id.notes_item -> {
                 mAllNotes = true
                 onSupportNavigateUp()
